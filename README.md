@@ -1,0 +1,1 @@
+A WIP tool for Grim Dawn modding. While it works at the moment, use is not recommended. Fully parsing all required files causes usage of a lot memory, which is the very next issue in TODO list.
