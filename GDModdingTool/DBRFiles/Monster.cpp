@@ -7,13 +7,13 @@ void Monster::parse() {
         return;
     }
 
-    Template::parse();
+    DBRBase::parse();
     _modifiedLootAmount = 1.0f;
 
     {
         auto it = _fields.find("monsterClassification");
         if (it != _fields.end()) {
-            _monsterClass = Template::MonsterClassOf(it->second.second->value());
+            _monsterClass = DBRBase::MonsterClassOf(it->second.second->value());
         }
     }
     {
@@ -74,7 +74,7 @@ void Monster::parse() {
         Field* field = _fieldsOrdered[i];
         std::string name = field->name();
         if (name == "monsterClassification") {
-            _monsterClass = Template::MonsterClassOf(field->value());
+            _monsterClass = DBRBase::MonsterClassOf(field->value());
         }
         else if (name == "factions") {
             _faction = _fileManager->getFaction(field->value());
@@ -89,8 +89,8 @@ void Monster::parse() {
             }
 
             loots[lootNum].file = _fileManager->getFile(field->value());
-            loots[lootNum].type = Template::TypeOf(loots[lootNum].file);
-            loots[lootNum].rarity = Template::RarityOf(loots[lootNum].file);
+            loots[lootNum].type = DBRBase::TypeOf(loots[lootNum].file);
+            loots[lootNum].rarity = DBRBase::RarityOf(loots[lootNum].file);
             loots[lootNum].name = field;
         }
         else if (std::regex_match(name, std::regex("chanceToEquip[A-z]+[0-9]*Item[0-9]+"))) { //(name.substr(0, 13) == "chanceToEquip") {

@@ -7,7 +7,7 @@ void ProxyPool::parse() {
         return;
     }
 
-    Template::parse();
+    DBRBase::parse();
 
     {
         auto it = _fields.find("ignoreGameBalance");

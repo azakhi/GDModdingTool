@@ -2,10 +2,10 @@
 
 #include <unordered_map>
 
-#include "Template.h"
+#include "DBRBase.h"
 #include "Lootable.h"
 
-class Monster : public Template
+class Monster : public DBRBase
 {
     bool _isParsed = false;
     std::unordered_map<std::string, Lootable> _lootables;
@@ -15,7 +15,7 @@ class Monster : public Template
 
 public:
     Monster(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : Template(fileManager, directoryEntry, templateName) {}
+        : DBRBase(fileManager, directoryEntry, templateName) {}
     void parse();
     void updateFromChild();
     void adjustLootAmount(float multiplier);
@@ -38,7 +38,7 @@ public:
             }
         }
 
-        return Template::isDirty();
+        return DBRBase::isDirty();
     }
 
 private:

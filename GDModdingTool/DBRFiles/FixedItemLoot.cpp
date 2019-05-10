@@ -7,7 +7,7 @@ void FixedItemLoot::parse() {
         return;
     }
 
-    Template::parse();
+    DBRBase::parse();
     _modifiedLootAmount = 1.0f;
 
     for (int lootNum = 1; lootNum <= 6; lootNum++) {
@@ -92,8 +92,8 @@ void FixedItemLoot::parse() {
                 }
 
                 lootsVec[lootNum][num].file = _fileManager->getFile(field->value());
-                lootsVec[lootNum][num].type = Template::TypeOf(lootsVec[lootNum][num].file);
-                lootsVec[lootNum][num].rarity = Template::RarityOf(lootsVec[lootNum][num].file);
+                lootsVec[lootNum][num].type = DBRBase::TypeOf(lootsVec[lootNum][num].file);
+                lootsVec[lootNum][num].rarity = DBRBase::RarityOf(lootsVec[lootNum][num].file);
                 lootsVec[lootNum][num].name = field;
             }
             else if (name.substr(5, 6) == "Weight") {

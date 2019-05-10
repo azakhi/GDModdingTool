@@ -32,10 +32,10 @@ void Customizer::preParse() {
     auto preParseFiles = _fileManager->getFiles(_preParseFiles);
     auto preParseFilesStr = _fileManager->getFiles(_preParseFilesStr);
     preParseFiles.insert(preParseFiles.end(), preParseFilesStr.begin(), preParseFilesStr.end());
-    _progressTotal = preParseFiles.size();
+    _progressTotal = (int)preParseFiles.size();
     _remainingWorkStart = 0;
     for (size_t i = 0; i < _threadProgress.size(); i++) {
-        auto t = std::thread(&Customizer::_preParse, this, i, preParseFiles);
+        auto t = std::thread(&Customizer::_preParse, this, (int)i, preParseFiles);
         t.detach();
     }
 }
@@ -63,14 +63,14 @@ void Customizer::setMaxDevotionPoints(int point) {
     _addFileForPreParse("gameengine.tpl");
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, point]() {
-        std::vector<Template*> playerFile = fmCopy->getFiles("experiencelevelcontrol.tpl");
+        std::vector<DBRBase*> playerFile = fmCopy->getFiles("experiencelevelcontrol.tpl");
         for (auto temp : playerFile) {
             temp->modifyField("maxDevotionPoints", [point](std::string str) -> std::string {
                 return std::to_string(point);
             });
         }
 
-        std::vector<Template*> gameEngineFile = fmCopy->getFiles("gameengine.tpl");
+        std::vector<DBRBase*> gameEngineFile = fmCopy->getFiles("gameengine.tpl");
         for (auto temp : gameEngineFile) {
             temp->modifyField("playerDevotionCap", [point](std::string str) -> std::string {
                 return std::to_string(point);
@@ -143,7 +143,7 @@ void Customizer::adjustCommonSpawnAmount(float multiplier) {
     _addFileForPreParse<ProxyPool>();
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->adjustSpawnAmount(multiplier);
@@ -156,7 +156,7 @@ void Customizer::adjustChampionSpawnAmount(float multiplier) {
     _addFileForPreParse<ProxyPool>();
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->adjustChampionSpawnAmount(multiplier);
@@ -171,7 +171,7 @@ void Customizer::adjustChampionChance(float multiplier) {
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->adjustChampionChance(multiplier);
@@ -192,7 +192,7 @@ void Customizer::adjustLootAmount(float multiplier, LootSource source/* = LootSo
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier, source]() {
         if (source == LootSource::All || source == LootSource::Chest) {
-            std::vector<Template*> temps = fmCopy->getFiles<FixedItemLoot>();
+            std::vector<DBRBase*> temps = fmCopy->getFiles<FixedItemLoot>();
             for (auto temp : temps) {
                 FixedItemLoot* fil = (FixedItemLoot*)temp;
                 fil->adjustLootAmount(multiplier);
@@ -200,7 +200,7 @@ void Customizer::adjustLootAmount(float multiplier, LootSource source/* = LootSo
         }
 
         if (source == LootSource::All || source == LootSource::Enemy) {
-            std::vector<Template*> temps = fmCopy->getFiles<Monster>();
+            std::vector<DBRBase*> temps = fmCopy->getFiles<Monster>();
             for (auto temp : temps) {
                 Monster* mon = (Monster*)temp;
                 mon->adjustLootAmount(multiplier);
@@ -221,26 +221,26 @@ void Customizer::adjustSpecificLootAmount(float multiplier, std::vector<ItemType
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier, types, rarities, isAnd]() {
-        std::vector<Template*> lmttemps = fmCopy->getFiles<LootMasterTable>();
+        std::vector<DBRBase*> lmttemps = fmCopy->getFiles<LootMasterTable>();
         for (auto temp : lmttemps) {
             LootMasterTable* lmt = (LootMasterTable*)temp;
             lmt->adjustSpecificLootAmount(multiplier, types, rarities, isAnd);
         }
 
-        std::vector<Template*> dyntemps = fmCopy->getFiles<DynWeightAffixTable>();
+        std::vector<DBRBase*> dyntemps = fmCopy->getFiles<DynWeightAffixTable>();
         for (auto temp : dyntemps) {
             DynWeightAffixTable* dyn = (DynWeightAffixTable*)temp;
             dyn->adjustSpecificLootAmount(multiplier, types, rarities, isAnd);
         }
 
-        std::vector<Template*> filtemps = fmCopy->getFiles<FixedItemLoot>();
+        std::vector<DBRBase*> filtemps = fmCopy->getFiles<FixedItemLoot>();
         for (auto temp : filtemps) {
             FixedItemLoot* fil = (FixedItemLoot*)temp;
             fil->updateFromChild();
             fil->adjustSpecificLootAmount(multiplier, types, rarities, isAnd);
         }
 
-        std::vector<Template*> montemps = fmCopy->getFiles<Monster>();
+        std::vector<DBRBase*> montemps = fmCopy->getFiles<Monster>();
         for (auto temp : montemps) {
             Monster* mon = (Monster*)temp;
             mon->updateFromChild();
@@ -256,7 +256,7 @@ void Customizer::removeDifficultyLimits() {
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy]() {
-        std::vector<Template*> proxies = fmCopy->getFiles("proxy.tpl");
+        std::vector<DBRBase*> proxies = fmCopy->getFiles("proxy.tpl");
         for (auto temp : proxies) {
             temp->modifyField("difficultyLimitsFile", [](std::string str) -> std::string {
                 return "records/proxies/limit_unlimited.dbr";
@@ -265,7 +265,7 @@ void Customizer::removeDifficultyLimits() {
             temp->addFieldIfNotExists("difficultyLimitsFile", "records/proxies/limit_unlimited.dbr");
         }
 
-        std::vector<Template*> proxyambushes = fmCopy->getFiles("proxyambush.tpl");
+        std::vector<DBRBase*> proxyambushes = fmCopy->getFiles("proxyambush.tpl");
         for (auto temp : proxyambushes) {
             temp->modifyField("difficultyLimitsFile", [](std::string str) -> std::string {
                 return "records/proxies/limit_unlimited.dbr";
@@ -283,7 +283,7 @@ void Customizer::adjustMonsterClassWeight(MonsterClass monsterClass, float multi
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, monsterClass, multiplier]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->adjustMonsterClassWeight(monsterClass, multiplier);
@@ -298,7 +298,7 @@ void Customizer::increaseMonsterClassLimit(MonsterClass monsterClass, int limit)
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, monsterClass, limit]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->increaseMonsterClassLimit(monsterClass, limit);
@@ -313,7 +313,7 @@ void Customizer::setMonsterClassMaxPlayerLevel(MonsterClass monsterClass, int le
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, monsterClass, level]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->setMonsterClassMaxPlayerLevel(monsterClass, level);
@@ -328,7 +328,7 @@ void Customizer::setMonsterClassMinPlayerLevel(MonsterClass monsterClass, int le
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, monsterClass, level]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ProxyPool>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->setMonsterClassMinPlayerLevel(monsterClass, level);
@@ -349,7 +349,7 @@ void Customizer::adjustFactionRepRequirements(float multiplier) {
         fields.push_back("factionValue6");
         fields.push_back("factionValue7");
         fields.push_back("factionValue8");
-        std::vector<Template*> temps = fmCopy->getFiles("gameengine.tpl");
+        std::vector<DBRBase*> temps = fmCopy->getFiles("gameengine.tpl");
         for (auto temp : temps) {
             temp->modifyField(fields, [multiplier](std::string str) -> std::string {
                 float value = std::stof(str);
@@ -365,7 +365,7 @@ void Customizer::setItemStackLimit(ItemType type, int limit) {
 
     FileManager* fmCopy = _fileManager;
     std::function<void()> f1 = [fmCopy, type, limit]() {
-        std::vector<Template*> temps = fmCopy->getFiles<ItemBase>();
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ItemBase>();
         for (auto temp : temps) {
             ItemBase* item = (ItemBase*)temp;
             if (item->itemType() == type)
@@ -376,7 +376,7 @@ void Customizer::setItemStackLimit(ItemType type, int limit) {
 
     _addFileForPreParse("gameengine.tpl");
     std::function<void()> f2 = [fmCopy, limit]() {
-        std::vector<Template*> gameEngineFile = fmCopy->getFiles("gameengine.tpl");
+        std::vector<DBRBase*> gameEngineFile = fmCopy->getFiles("gameengine.tpl");
         for (auto temp : gameEngineFile) {
             std::vector<std::string> fields;
             fields.push_back("potionStackLimit");
@@ -391,7 +391,7 @@ void Customizer::setItemStackLimit(ItemType type, int limit) {
     _tasks.push_back(f2);
 }
 
-void Customizer::_preParse(int tnum, std::vector<Template*> temps) {
+void Customizer::_preParse(int tnum, std::vector<DBRBase*> temps) {
     _isThreadDone[tnum] = false;
     _threadProgress[tnum] = 0;
 

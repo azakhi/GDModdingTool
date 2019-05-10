@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Template.h"
+#include "DBRBase.h"
 #include "LootMasterTable.h"
 
 class DynWeightAffixTable : public LootMasterTable

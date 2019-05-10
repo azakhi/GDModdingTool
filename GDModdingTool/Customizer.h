@@ -5,14 +5,14 @@
 #include <typeindex>
 
 #include "FileManager.h"
-#include "Templates/Template.h"
-#include "Templates/FixedItemLoot.h"
-#include "Templates/LootMasterTable.h"
-#include "Templates/Monster.h"
-#include "Templates/ProxyPool.h"
-#include "Templates/ItemBase.h"
-#include "Templates/DynWeightAffixTable.h"
-#include "Templates/LevelTable.h"
+#include "DBRFiles/DBRBase.h"
+#include "DBRFiles/FixedItemLoot.h"
+#include "DBRFiles/LootMasterTable.h"
+#include "DBRFiles/Monster.h"
+#include "DBRFiles/ProxyPool.h"
+#include "DBRFiles/ItemBase.h"
+#include "DBRFiles/DynWeightAffixTable.h"
+#include "DBRFiles/LevelTable.h"
 
 class Customizer
 {
@@ -75,7 +75,7 @@ private:
     template <typename T>
     void _addFileForPreParse();
     void _addFileForPreParse(std::string s);
-    void _preParse(int tnum, std::vector<Template*> temps);
+    void _preParse(int tnum, std::vector<DBRBase*> temps);
     void _preParseWOThreads();
     void _getWorkPart(int& start, int& end);
 };

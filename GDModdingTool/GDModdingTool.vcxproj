@@ -174,29 +174,29 @@
     <ClCompile Include="Customizer.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="GDModdingTool.cpp" />
-    <ClCompile Include="Templates\DynWeightAffixTable.cpp" />
-    <ClCompile Include="Templates\FixedItemLoot.cpp" />
-    <ClCompile Include="Templates\ItemBase.cpp" />
-    <ClCompile Include="Templates\Lootable.cpp" />
-    <ClCompile Include="Templates\LootMasterTable.cpp" />
-    <ClCompile Include="Templates\Monster.cpp" />
-    <ClCompile Include="Templates\ProxyPool.cpp" />
-    <ClCompile Include="Templates\Template.cpp" />
+    <ClCompile Include="DBRFiles\DynWeightAffixTable.cpp" />
+    <ClCompile Include="DBRFiles\FixedItemLoot.cpp" />
+    <ClCompile Include="DBRFiles\ItemBase.cpp" />
+    <ClCompile Include="DBRFiles\Lootable.cpp" />
+    <ClCompile Include="DBRFiles\LootMasterTable.cpp" />
+    <ClCompile Include="DBRFiles\Monster.cpp" />
+    <ClCompile Include="DBRFiles\ProxyPool.cpp" />
+    <ClCompile Include="DBRFiles\DBRBase.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsolePrinter.h" />
     <ClInclude Include="Customizer.h" />
     <ClInclude Include="FileManager.h" />
-    <ClInclude Include="Templates\DynWeightAffixTable.h" />
-    <ClInclude Include="Templates\Field.h" />
-    <ClInclude Include="Templates\FixedItemLoot.h" />
-    <ClInclude Include="Templates\ItemBase.h" />
-    <ClInclude Include="Templates\LevelTable.h" />
-    <ClInclude Include="Templates\Lootable.h" />
-    <ClInclude Include="Templates\LootMasterTable.h" />
-    <ClInclude Include="Templates\Monster.h" />
-    <ClInclude Include="Templates\ProxyPool.h" />
-    <ClInclude Include="Templates\Template.h" />
+    <ClInclude Include="DBRFiles\DynWeightAffixTable.h" />
+    <ClInclude Include="DBRFiles\Field.h" />
+    <ClInclude Include="DBRFiles\FixedItemLoot.h" />
+    <ClInclude Include="DBRFiles\ItemBase.h" />
+    <ClInclude Include="DBRFiles\LevelTable.h" />
+    <ClInclude Include="DBRFiles\Lootable.h" />
+    <ClInclude Include="DBRFiles\LootMasterTable.h" />
+    <ClInclude Include="DBRFiles\Monster.h" />
+    <ClInclude Include="DBRFiles\ProxyPool.h" />
+    <ClInclude Include="DBRFiles\DBRBase.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

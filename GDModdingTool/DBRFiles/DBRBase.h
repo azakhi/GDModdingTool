@@ -19,21 +19,21 @@ enum ItemType {TypeNone = -1, TypeAmulet, TypeArmor, TypeBelt, TypeBlueprint, Ty
 
 struct Loot
 {
-    Template* file = nullptr;
+    DBRBase* file = nullptr;
     NumericField<int>* weight = nullptr;
     Field* name = nullptr;
 };
 
 struct Spawn
 {
-    Template* monster = nullptr;
+    DBRBase* monster = nullptr;
     NumericField<int>* weight = nullptr;
     NumericField<int>* limit = nullptr;
     NumericField<int>* maxPlayerLevel = nullptr;
     NumericField<int>* minPlayerLevel = nullptr;
 };
 
-class Template {
+class DBRBase {
     bool _isParsed;
 
 protected:
@@ -44,7 +44,7 @@ protected:
     std::vector<Field*> _fieldsOrdered;
 
 public:
-    Template(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName);
+    DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName);
     virtual void parse(bool isFullyParse = false, std::vector<std::string> fields = std::vector<std::string>());
     virtual void applyChanges();
     void addFieldIfNotExists(std::string fieldName, std::string value);

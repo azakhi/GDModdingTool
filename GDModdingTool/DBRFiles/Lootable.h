@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "Template.h"
+#include "DBRBase.h"
 #include "Field.h"
 
 class Lootable {

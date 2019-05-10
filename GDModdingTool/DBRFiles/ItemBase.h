@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Template.h"
+#include "DBRBase.h"
 
-class ItemBase : public Template
+class ItemBase : public DBRBase
 {
     bool _isParsed = false;
     bool _cannotPickupMultiple = false;
@@ -12,7 +12,7 @@ class ItemBase : public Template
 
 public:
     ItemBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : Template(fileManager, directoryEntry, templateName) {}
+        : DBRBase(fileManager, directoryEntry, templateName) {}
 
     const bool cannotPickupMultiple() const { return _cannotPickupMultiple; }
     const ItemClass itemClass() const { return _itemClass; }

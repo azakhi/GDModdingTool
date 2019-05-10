@@ -5,8 +5,8 @@ void ItemBase::parse() {
         return;
     }
 
-    Template::parse();
-    _itemType = Template::ItemTypeOf(_templateName);
+    DBRBase::parse();
+    _itemType = DBRBase::ItemTypeOf(_templateName);
     {
         auto it = _fields.find("cannotPickUpMultiple");
         if (it != _fields.end()) {
@@ -16,7 +16,7 @@ void ItemBase::parse() {
     {
         auto it = _fields.find("itemClassification");
         if (it != _fields.end()) {
-            _itemClass = Template::ItemClassOf(it->second.second->value());
+            _itemClass = DBRBase::ItemClassOf(it->second.second->value());
         }
     }
     {

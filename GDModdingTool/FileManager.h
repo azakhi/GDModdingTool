@@ -8,7 +8,7 @@
 #include <functional>
 #include <typeindex>
 
-class Template;
+class DBRBase;
 struct Variable;
 
 class FileManager {
@@ -21,13 +21,13 @@ class FileManager {
     std::string _modDirectory;
     std::vector<std::string> _subDirectories;
     std::vector<std::string> _templateNames;
-    std::unordered_map<std::string, std::vector<Template*>> _templateMap;
-    std::unordered_map<std::type_index, std::vector<Template*>> _typeMap;
-    std::unordered_map<std::string, Template*> _fileMap;
+    std::unordered_map<std::string, std::vector<DBRBase*>> _templateMap;
+    std::unordered_map<std::type_index, std::vector<DBRBase*>> _typeMap;
+    std::unordered_map<std::string, DBRBase*> _fileMap;
     int _factionCount = 0;
     std::unordered_map<std::string, int> _factionMap;
     void _scanFiles();
-    void _save(int tnum, int size, std::vector<Template*> temps);
+    void _save(int tnum, int size, std::vector<DBRBase*> temps);
 
 public:
     FileManager(std::string gameDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
@@ -67,10 +67,10 @@ public:
     }
 
     const std::vector<std::string> getTemplateNames() const;
-    Template* getFile(std::string path) const;
-    std::vector<Template*> getFiles(std::string templateName) const;
-    std::vector<Template*> getFiles(std::vector<std::string> templateNames) const;
-    std::vector<Template*> getFiles(std::vector<std::type_index> typeIndexes) const;
+    DBRBase* getFile(std::string path) const;
+    std::vector<DBRBase*> getFiles(std::string templateName) const;
+    std::vector<DBRBase*> getFiles(std::vector<std::string> templateNames) const;
+    std::vector<DBRBase*> getFiles(std::vector<std::type_index> typeIndexes) const;
     void modifyField(std::string templateName, std::string fieldName, std::function<std::string(std::string)> modifier);
     void modifyField(std::string templateName, std::vector<std::string> fieldNames, std::function<std::string(std::string)> modifier);
     void save();
@@ -78,12 +78,12 @@ public:
     template <typename T>
     void addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName);
     template <typename T>
-    std::vector<Template*> getFiles() {
+    std::vector<DBRBase*> getFiles() {
         auto it = _typeMap.find(std::type_index(typeid(T)));
         if (it != _typeMap.end()) {
             return it->second;
         }
 
-        return std::vector<Template*>();
+        return std::vector<DBRBase*>();
     }
 };

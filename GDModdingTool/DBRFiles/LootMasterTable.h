@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Template.h"
+#include "DBRBase.h"
 #include "Lootable.h"
 
-class LootMasterTable : public Template
+class LootMasterTable : public DBRBase
 {
     bool _isParsed = false;
 
@@ -12,7 +12,7 @@ protected:
 
 public:
     LootMasterTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : Template(fileManager, directoryEntry, templateName) {}
+        : DBRBase(fileManager, directoryEntry, templateName) {}
     void parse();
     void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
 
@@ -25,7 +25,7 @@ public:
     }
 
     const bool isDirty() const {
-        return _lootable.isDirty() || Template::isDirty();
+        return _lootable.isDirty() || DBRBase::isDirty();
     }
 
 private:

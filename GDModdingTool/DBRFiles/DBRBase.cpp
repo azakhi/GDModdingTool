@@ -1,14 +1,14 @@
-#include "Template.h"
+#include "DBRBase.h"
 
 #include <iostream>
 
-Template::Template(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName) : _fileManager(fileManager) {
+DBRBase::DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName) : _fileManager(fileManager) {
     _directoryEntry = directoryEntry;
     _templateName = templateName;
     _isParsed = false;
 }
 
-void Template::parse(bool isFullyParse = false, std::vector<std::string> fields = std::vector<std::string>()) {
+void DBRBase::parse(bool isFullyParse, std::vector<std::string> fields) {
     if (_isParsed) {
         return;
     }
@@ -21,7 +21,7 @@ void Template::parse(bool isFullyParse = false, std::vector<std::string> fields 
         commaPos = line.find_first_of(',');
         if (commaPos >= 0) {
             Field* field = new Field(line.substr(0, commaPos), line.substr(commaPos + 1, line.length() - commaPos - 2));
-            _fields[field->name()] = std::make_pair(_fieldsOrdered.size(), field);
+            _fields[field->name()] = std::make_pair((int)_fieldsOrdered.size(), field);
             _fieldsOrdered.push_back(field);
         }
         else {
@@ -32,11 +32,11 @@ void Template::parse(bool isFullyParse = false, std::vector<std::string> fields 
     _isParsed = true;
 }
 
-void Template::applyChanges() {
+void DBRBase::applyChanges() {
     // Should be overriden in case of delayed changes
 }
 
-void Template::addFieldIfNotExists(std::string fieldName, std::string value) {
+void DBRBase::addFieldIfNotExists(std::string fieldName, std::string value) {
     parse();
     if (_fields.find(fieldName) != _fields.end()) {
         // exists, return
@@ -45,11 +45,11 @@ void Template::addFieldIfNotExists(std::string fieldName, std::string value) {
 
     Field* field = new Field(fieldName, "");
     field->setModifiedValue(value); // To make it 'modified'
-    _fields[fieldName] = std::make_pair(_fieldsOrdered.size(), field);
+    _fields[fieldName] = std::make_pair((int)_fieldsOrdered.size(), field);
     _fieldsOrdered.push_back(field);
 }
 
-void Template::modifyField(std::string fieldName, std::function<std::string(std::string)> modifier) {
+void DBRBase::modifyField(std::string fieldName, std::function<std::string(std::string)> modifier) {
     parse();
     auto it = _fields.find(fieldName);
     if (it != _fields.end()) {
@@ -57,13 +57,13 @@ void Template::modifyField(std::string fieldName, std::function<std::string(std:
     }
 }
 
-void Template::modifyField(std::vector<std::string> fieldNames, std::function<std::string(std::string)> modifier) {
+void DBRBase::modifyField(std::vector<std::string> fieldNames, std::function<std::string(std::string)> modifier) {
     for (auto& fieldName : fieldNames) {
         modifyField(fieldName, modifier);
     }
 }
 
-std::string Template::text() {
+std::string DBRBase::text() {
     parse();
     applyChanges();
 

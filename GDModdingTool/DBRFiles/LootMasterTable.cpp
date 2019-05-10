@@ -5,7 +5,7 @@ void LootMasterTable::parse() {
         return;
     }
 
-    Template::parse();
+    DBRBase::parse();
     std::vector<Loot> loots;
     for (int lootNum = 1; lootNum <= 100; lootNum++) {
         auto nameIt = _fields.find("lootName" + std::to_string(lootNum));
@@ -52,8 +52,8 @@ void LootMasterTable::parse() {
             }
 
             loots[num].file = _fileManager->getFile(field->value());
-            loots[num].type = Template::TypeOf(loots[num].file);
-            loots[num].rarity = Template::RarityOf(loots[num].file);
+            loots[num].type = DBRBase::TypeOf(loots[num].file);
+            loots[num].rarity = DBRBase::RarityOf(loots[num].file);
             loots[num].name = field;
         }
         else if (name.substr(0, 10) == "lootWeight") {

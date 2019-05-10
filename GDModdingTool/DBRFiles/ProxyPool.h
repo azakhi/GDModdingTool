@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Template.h"
+#include "DBRBase.h"
 #include "Field.h"
 
-class ProxyPool : public Template
+class ProxyPool : public DBRBase
 {
     bool _isParsed = false;
     bool _ignoreGameBalance = false;
@@ -17,7 +17,7 @@ class ProxyPool : public Template
     bool _isRatioPreserved() const;
 public:
     ProxyPool(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : Template(fileManager, directoryEntry, templateName) {}
+        : DBRBase(fileManager, directoryEntry, templateName) {}
     void parse();
     void adjustSpawnAmount(float multiplier);
     void adjustChampionSpawnAmount(float multiplier);
@@ -32,6 +32,6 @@ public:
     }
 
     const bool isDirty() const {
-        return !_ignoreGameBalance && (Template::isDirty() || !_isRatioPreserved());
+        return !_ignoreGameBalance && (DBRBase::isDirty() || !_isRatioPreserved());
     }
 };

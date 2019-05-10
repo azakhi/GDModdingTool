@@ -10,14 +10,14 @@
 #include <thread>
 #include <Windows.h>
 
-#include "Templates/Template.h"
-#include "Templates/FixedItemLoot.h"
-#include "Templates/Monster.h"
-#include "Templates/LootMasterTable.h"
-#include "Templates/ProxyPool.h"
-#include "Templates/ItemBase.h"
-#include "Templates/DynWeightAffixTable.h"
-#include "Templates/LevelTable.h"
+#include "DBRFiles/DBRBase.h"
+#include "DBRFiles/FixedItemLoot.h"
+#include "DBRFiles/Monster.h"
+#include "DBRFiles/LootMasterTable.h"
+#include "DBRFiles/ProxyPool.h"
+#include "DBRFiles/ItemBase.h"
+#include "DBRFiles/DynWeightAffixTable.h"
+#include "DBRFiles/LevelTable.h"
 
 #include <iostream>
 
@@ -37,7 +37,7 @@ const std::vector<std::string> FileManager::getTemplateNames() const {
     return _templateNames;
 }
 
-Template* FileManager::getFile(std::string path) const {
+DBRBase* FileManager::getFile(std::string path) const {
     auto it = _fileMap.find(path);
     if (it != _fileMap.end()) {
         return it->second;
@@ -46,17 +46,17 @@ Template* FileManager::getFile(std::string path) const {
     return nullptr;
 }
 
-std::vector<Template*> FileManager::getFiles(std::string templateName) const {
+std::vector<DBRBase*> FileManager::getFiles(std::string templateName) const {
     auto it = _templateMap.find(templateName);
     if (it != _templateMap.end()) {
         return it->second;
     }
 
-    return std::vector<Template*>();
+    return std::vector<DBRBase*>();
 }
 
-std::vector<Template*> FileManager::getFiles(std::vector<std::string> templateNames) const {
-    std::vector<Template*> files;
+std::vector<DBRBase*> FileManager::getFiles(std::vector<std::string> templateNames) const {
+    std::vector<DBRBase*> files;
 
     for (const auto& tname : templateNames) {
         auto it = _templateMap.find(tname);
@@ -69,8 +69,8 @@ std::vector<Template*> FileManager::getFiles(std::vector<std::string> templateNa
     return files;
 }
 
-std::vector<Template*> FileManager::getFiles(std::vector<std::type_index> typeIndexes) const {
-    std::vector<Template*> files;
+std::vector<DBRBase*> FileManager::getFiles(std::vector<std::type_index> typeIndexes) const {
+    std::vector<DBRBase*> files;
 
     for (const auto& tindex : typeIndexes) {
         auto it = _typeMap.find(tindex);
@@ -194,13 +194,13 @@ void FileManager::modifyField(std::string templateName, std::vector<std::string>
 
 template <typename T>
 void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName) {
-    if (!std::is_base_of<Template, T>::value) {
+    if (!std::is_base_of<DBRBase, T>::value) {
         throw "Unknow type T in File Manager";
     }
 
-    Template* temp = (Template*)(new T(this, directoryEntry, templateName));
+    DBRBase* temp = (DBRBase*)(new T(this, directoryEntry, templateName));
     std::type_index typeIndex(typeid(T));
-    if (_typeMap.find(typeIndex) == _typeMap.end()) _typeMap[typeIndex] = std::vector<Template*>();
+    if (_typeMap.find(typeIndex) == _typeMap.end()) _typeMap[typeIndex] = std::vector<DBRBase*>();
     _typeMap[typeIndex].push_back(temp);
     _templateMap[templateName].push_back(temp);
     std::string pathAsValue = "records" + directoryEntry.path().string().substr(_gameDirectory.length());
@@ -209,7 +209,7 @@ void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, s
 }
 
 void FileManager::save() {
-    std::vector<Template*> dirtyFiles;
+    std::vector<DBRBase*> dirtyFiles;
     for (auto&[key, val] : _templateMap) {
         for (auto& file : val) {
             if (file->isDirty()) {
@@ -218,15 +218,15 @@ void FileManager::save() {
         }
     }
 
-    _progressTotal = dirtyFiles.size();
-    int size = dirtyFiles.size() / _threadProgress.size() + 1;
+    _progressTotal = (int)dirtyFiles.size();
+    int size = (int)(dirtyFiles.size() / _threadProgress.size() + 1);
     for (size_t i = 0; i < _threadProgress.size(); i++) {
-        auto t = std::thread(&FileManager::_save, this, i, size, dirtyFiles);
+        auto t = std::thread(&FileManager::_save, this, (int)i, size, dirtyFiles);
         t.detach();
     }
 }
 
-void FileManager::_save(int tnum, int size, std::vector<Template*> temps) {
+void FileManager::_save(int tnum, int size, std::vector<DBRBase*> temps) {
     int end = (tnum + 1) * size;
     if ((int)(temps.size()) < end) {
         end = (int)(temps.size());

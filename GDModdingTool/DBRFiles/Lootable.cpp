@@ -8,7 +8,7 @@
 Lootable::Lootable(std::vector<Loot> loots/* = std::vector<Loot>()*/, ArrayField<NumericField<float>>* chance/* = nullptr*/) {
     _chance = chance;
 
-    for (int i = loots.size() - 1; i >= 0; i--) {
+    for (int i = (int)loots.size() - 1; i >= 0; i--) {
         if (loots[i].name == nullptr || loots[i].weight == nullptr || loots[i].weight->numericValue() == 0) {
             loots.erase(loots.begin() + i);
         }
