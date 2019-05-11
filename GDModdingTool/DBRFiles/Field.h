@@ -8,24 +8,28 @@
 
 class Field {
     std::string _value;
-    std::string _modifiedValue;
+    std::string* _modifiedValue = nullptr;
 protected:
     std::string _name;
     bool _neverModified;
 public:
+
     Field(std::string name, std::string value = "", bool neverModified = false) {
         _name = name;
         _value = value;
-        _modifiedValue = "";
         _neverModified = neverModified;
     }
     
     const std::string name() const { return _name; }
     virtual const std::string value() const { return _value; }
-    virtual const std::string modifiedValue() const { return _modifiedValue; }
+    virtual const std::string modifiedValue() const { return _modifiedValue == nullptr ? "" : *_modifiedValue; }
 
     virtual void setModifiedValue(std::string value) {
-        _modifiedValue = value;
+        if (_modifiedValue == nullptr) {
+            _modifiedValue = new std::string();
+        }
+
+        *_modifiedValue = value;
     }
 
     virtual bool isModified() const {
@@ -163,61 +167,3 @@ public:
         return s.substr(1);
     }
 };
-
-//class IntField : public Field {
-//    int _value;
-//    float _modifiedValue;
-//public:
-//    IntField(std::string name, std::string value) : Field(name) {
-//        _value = std::stoi(value);
-//        _modifiedValue = _value;
-//    }
-//
-//    void setModifiedValue(std::string value) {
-//        _modifiedValue = std::stof(value);
-//    }
-//
-//    void setModifiedValue(float value) {
-//        _modifiedValue = value;
-//    }
-//
-//    bool isModified() const {
-//        return value() != modifiedValue();
-//    }
-//
-//    std::string toString() const {
-//        return std::to_string(isModified() ? modifiedValue() : value());
-//    }
-//
-//    int value() const { return _value; }
-//    int modifiedValue() const { return (int)(_modifiedValue + 0.5f); }
-//};
-//
-//class FloatField : public Field {
-//    float _value;
-//    float _modifiedValue;
-//public:
-//    FloatField(std::string name, std::string value) : Field(name) {
-//        _value = std::stof(value);
-//        _modifiedValue = _value;
-//    }
-//
-//    void setModifiedValue(std::string value) {
-//        _modifiedValue = std::stof(value);
-//    }
-//
-//    void setModifiedValue(float value) {
-//        _modifiedValue = value;
-//    }
-//
-//    bool isModified() const {
-//        return value() != modifiedValue();
-//    }
-//
-//    std::string toString() const {
-//        return std::to_string(isModified() ? modifiedValue() : value());
-//    }
-//
-//    float value() const { return _value; }
-//    float modifiedValue() const { return _modifiedValue; }
-//};
