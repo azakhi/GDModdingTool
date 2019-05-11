@@ -33,19 +33,61 @@ struct Spawn
     NumericField<int>* minPlayerLevel = nullptr;
 };
 
+class OrderedFieldMap {
+    FileManager* _fileManager;
+    std::string _templateName;
+    std::vector<int> _fields;
+    std::vector<Field*> _fieldsOrdered;
+
+public:
+    OrderedFieldMap(FileManager* fileManager, std::string templateName) : _fileManager(fileManager), _templateName(templateName) {};
+
+    const std::vector<Field*> fieldsOrdered() const {
+        return _fieldsOrdered;
+    }
+
+    bool contains(std::string key) const {
+        int index = _fileManager->getFieldIndex(_templateName, key);
+        return (index < _fields.size() && _fields[index] >= 0);
+    }
+
+    const Field* operator [](std::string s) const {
+        int index = _fileManager->getFieldIndex(_templateName, s);
+        if (index >= _fields.size() || _fields[index] < 0) {
+            return nullptr;
+        }
+
+        return _fieldsOrdered[_fields[index]];
+    }
+
+    Field*& operator [](std::string s) {
+        int index = _fileManager->getFieldIndex(_templateName, s);
+        if (index >= _fields.size()) {
+            _fields.insert(_fields.end(), index - _fields.size() + 1, -1);
+        }
+
+        if (_fields[index] < 0) { // add new to ordered
+            _fields[index] = (int)_fieldsOrdered.size();
+            _fieldsOrdered.push_back(nullptr);
+        }
+
+        return _fieldsOrdered[_fields[index]];
+    }
+};
+
 class DBRBase {
-    bool _isParsed;
+    bool _isParsed = false;
 
 protected:
     FileManager* _fileManager;
     std::filesystem::directory_entry _directoryEntry;
     std::string _templateName;
-    std::unordered_map<std::string, std::pair<int, Field*>> _fields;
-    std::vector<Field*> _fieldsOrdered;
+    OrderedFieldMap _fieldMap;
 
 public:
-    DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName);
-    virtual void parse(bool isFullyParse = false, std::vector<std::string> fields = std::vector<std::string>());
+    DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
+        : _directoryEntry(directoryEntry), _fileManager(fileManager), _templateName(templateName), _fieldMap(fileManager, templateName) {};
+    virtual void parse();
     virtual void applyChanges();
     void addFieldIfNotExists(std::string fieldName, std::string value);
     void modifyField(std::string fieldName, std::function<std::string(std::string)> modifier);
@@ -61,8 +103,8 @@ public:
     }
 
     virtual const bool isDirty() const {
-        for (const auto& f : _fieldsOrdered) {
-            if (f->isModified()) return true;
+        for (const auto& f : _fieldMap.fieldsOrdered()) {
+            if (f != nullptr && f->isModified()) return true;
         }
 
         return false;

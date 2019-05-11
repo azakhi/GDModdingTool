@@ -14,9 +14,9 @@ public:
     void parse() {
         if (_isParsed) return;
         DBRBase::parse();
-        auto it = _fields.find("records");
-        if (it != _fields.end()) {
-            std::stringstream ss(it->second.second->value());
+        Field* recordsField = _fieldMap["records"];
+        if (recordsField != nullptr) {
+            std::stringstream ss(recordsField->value());
             std::string item = "";
             while (std::getline(ss, item, ';')) {
                 DBRBase* file = _fileManager->getFile(item);

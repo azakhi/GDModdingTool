@@ -7,28 +7,21 @@ void ItemBase::parse() {
 
     DBRBase::parse();
     _itemType = DBRBase::ItemTypeOf(_templateName);
-    {
-        auto it = _fields.find("cannotPickUpMultiple");
-        if (it != _fields.end()) {
-            _cannotPickupMultiple = it->second.second->value() == "1";
-        }
+
+    if (_fieldMap["cannotPickUpMultiple"] != nullptr) {
+        _cannotPickupMultiple = _fieldMap["cannotPickUpMultiple"]->value() == "1";
     }
-    {
-        auto it = _fields.find("itemClassification");
-        if (it != _fields.end()) {
-            _itemClass = DBRBase::ItemClassOf(it->second.second->value());
-        }
+
+    if (_fieldMap["itemClassification"] != nullptr) {
+        _itemClass = DBRBase::ItemClassOf(_fieldMap["itemClassification"]->value());
     }
-    {
-        auto it = _fields.find("maxStackSize");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _maxStackSize = new NumericField<int>(field->name(), field->value());
-            _fieldsOrdered[it->second.first] = _maxStackSize;
-            _fields[field->name()] = std::make_pair(it->second.first, _maxStackSize);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["maxStackSize"] != nullptr) {
+        Field* field = _fieldMap["maxStackSize"];
+        _maxStackSize = new NumericField<int>(field->name(), field->value());
+        _fieldMap["maxStackSize"] = _maxStackSize;
+        delete field;
+        field = nullptr;
     }
 
     _isParsed = true;

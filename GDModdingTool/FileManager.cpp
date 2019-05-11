@@ -49,7 +49,7 @@ DBRBase* FileManager::getFile(std::string path) const {
 std::vector<DBRBase*> FileManager::getFiles(std::string templateName) const {
     auto it = _templateMap.find(templateName);
     if (it != _templateMap.end()) {
-        return it->second;
+        return it->second->dbrs;
     }
 
     return std::vector<DBRBase*>();
@@ -61,7 +61,7 @@ std::vector<DBRBase*> FileManager::getFiles(std::vector<std::string> templateNam
     for (const auto& tname : templateNames) {
         auto it = _templateMap.find(tname);
         if (it != _templateMap.end()) {
-            files.insert(files.end(), it->second.begin(), it->second.end());
+            files.insert(files.end(), it->second->dbrs.begin(), it->second->dbrs.end());
         }
     }
 
@@ -100,12 +100,18 @@ void FileManager::_scanFiles() {
     templateMap["jewelry_amulet.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["itemrandomsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["itemartifactformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["itemattributereset.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["itemsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["itemrelic.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["itemdifficultyunlock.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["itemdevotionreset.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["itemusableskill.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["itemnote.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["jewelry_medal.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["oneshot_potionhealth.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["oneshot_potionmana.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["oneshot_food.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
+    templateMap["oneshot_scroll.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["questitem.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["itemartifact.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
     templateMap["jewelry_ring.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
@@ -159,13 +165,14 @@ void FileManager::_scanFiles() {
             }
 
             if (_templateMap.find(templateName) == _templateMap.end()) {
-                _templateMap[templateName] = std::vector<Template*>();
+                DBRData* data = new DBRData();
+                _templateMap[templateName] = data;
                 _templateNames.push_back(templateName);
             }
             
             auto tempIt = templateMap.find(templateName);
             if (tempIt != templateMap.end()) tempIt->second(entry, templateName);
-            else addTemplate<Template>(entry, templateName);
+            else addTemplate<DBRBase>(entry, templateName);
         }
     }
 
@@ -177,7 +184,7 @@ void FileManager::modifyField(std::string templateName, std::string fieldName, s
         return;
     }
 
-    for (auto temp : _templateMap[templateName]) {
+    for (auto temp : _templateMap[templateName]->dbrs) {
         temp->modifyField(fieldName, modifier);
     }
 }
@@ -187,7 +194,7 @@ void FileManager::modifyField(std::string templateName, std::vector<std::string>
         return;
     }
 
-    for (auto temp : _templateMap[templateName]) {
+    for (auto temp : _templateMap[templateName]->dbrs) {
         temp->modifyField(fieldNames, modifier);
     }
 }
@@ -202,7 +209,7 @@ void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, s
     std::type_index typeIndex(typeid(T));
     if (_typeMap.find(typeIndex) == _typeMap.end()) _typeMap[typeIndex] = std::vector<DBRBase*>();
     _typeMap[typeIndex].push_back(temp);
-    _templateMap[templateName].push_back(temp);
+    _templateMap[templateName]->dbrs.push_back(temp);
     std::string pathAsValue = "records" + directoryEntry.path().string().substr(_gameDirectory.length());
     std::replace(pathAsValue.begin(), pathAsValue.end(), '\\', '/');
     _fileMap[pathAsValue] = temp;
@@ -211,7 +218,7 @@ void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, s
 void FileManager::save() {
     std::vector<DBRBase*> dirtyFiles;
     for (auto&[key, val] : _templateMap) {
-        for (auto& file : val) {
+        for (auto& file : val->dbrs) {
             if (file->isDirty()) {
                 dirtyFiles.push_back(file);
             }
@@ -255,4 +262,16 @@ void FileManager::_save(int tnum, int size, std::vector<DBRBase*> temps) {
         }
     }
     _isThreadDone[tnum] = true;
+}
+
+int FileManager::_addField(DBRData* data, std::string field) {
+    std::lock_guard<std::mutex> lock(data->lock);
+    auto it = data->fieldMap.find(field);
+    if (it != data->fieldMap.end()) {
+        return it->second;
+    }
+
+    int index = (int)data->fieldMap.size();
+    data->fieldMap[field] = index;
+    return index;
 }

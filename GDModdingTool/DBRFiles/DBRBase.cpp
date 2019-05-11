@@ -2,13 +2,7 @@
 
 #include <iostream>
 
-DBRBase::DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName) : _fileManager(fileManager) {
-    _directoryEntry = directoryEntry;
-    _templateName = templateName;
-    _isParsed = false;
-}
-
-void DBRBase::parse(bool isFullyParse, std::vector<std::string> fields) {
+void DBRBase::parse() {
     if (_isParsed) {
         return;
     }
@@ -19,14 +13,12 @@ void DBRBase::parse(bool isFullyParse, std::vector<std::string> fields) {
     while (std::getline(dbrFile, line)) {
         std::size_t commaPos = -1;
         commaPos = line.find_first_of(',');
+        Field* field = nullptr;
         if (commaPos >= 0) {
-            Field* field = new Field(line.substr(0, commaPos), line.substr(commaPos + 1, line.length() - commaPos - 2));
-            _fields[field->name()] = std::make_pair((int)_fieldsOrdered.size(), field);
-            _fieldsOrdered.push_back(field);
+            field = new Field(line.substr(0, commaPos), line.substr(commaPos + 1, line.length() - commaPos - 2));
         }
-        else {
-            _fieldsOrdered.push_back(nullptr);
-        }
+
+        _fieldMap[field->name()] = field;
     }
 
     _isParsed = true;
@@ -38,22 +30,20 @@ void DBRBase::applyChanges() {
 
 void DBRBase::addFieldIfNotExists(std::string fieldName, std::string value) {
     parse();
-    if (_fields.find(fieldName) != _fields.end()) {
+    if (_fieldMap.contains(fieldName)) {
         // exists, return
         return;
     }
 
     Field* field = new Field(fieldName, "");
     field->setModifiedValue(value); // To make it 'modified'
-    _fields[fieldName] = std::make_pair((int)_fieldsOrdered.size(), field);
-    _fieldsOrdered.push_back(field);
+    _fieldMap[fieldName] = field;
 }
 
 void DBRBase::modifyField(std::string fieldName, std::function<std::string(std::string)> modifier) {
     parse();
-    auto it = _fields.find(fieldName);
-    if (it != _fields.end()) {
-        it->second.second->setModifiedValue(modifier(it->second.second->value()));
+    if (_fieldMap[fieldName] != nullptr) {
+        _fieldMap[fieldName]->setModifiedValue(modifier(_fieldMap[fieldName]->value()));
     }
 }
 
@@ -68,27 +58,12 @@ std::string DBRBase::text() {
     applyChanges();
 
     std::string str = "";
-    for (auto f : _fieldsOrdered) {
-        str += f->name() + "," + f->toString() + ",\n";
-    }
-
-    std::ifstream dbrFile;
-    dbrFile.open(_directoryEntry.path());
-    std::string line;
-    size_t lineNum = 0;
-    while (std::getline(dbrFile, line)) {
-        if (_fieldsOrdered[lineNum] == nullptr) {
-            str += line + "\n";
+    for (auto f : _fieldMap.fieldsOrdered()) {
+        if (f != nullptr) {
+            str += f->name() + "," + f->toString() + ",\n";
         }
         else {
-            str += _fieldsOrdered[lineNum]->name() + "," + _fieldsOrdered[lineNum]->toString() + ",\n";
-        }
-        lineNum++;
-    }
-
-    for (size_t i = lineNum; i < _fieldsOrdered.size(); i++) {
-        if (_fieldsOrdered[i] == nullptr) {
-            str += _fieldsOrdered[i]->name() + "," + _fieldsOrdered[i]->toString() + ",\n";
+            //str += "\n";
         }
     }
 

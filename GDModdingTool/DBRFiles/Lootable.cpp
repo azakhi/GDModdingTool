@@ -71,9 +71,13 @@ void Lootable::adjustSpecificLootAmount(float multiplier, std::vector<ItemType> 
             throw "Unknown file type in Lootable";
         }
     }
+
+    _updateChances();
 }
 
 void Lootable::_updateChances() {
+    if (_chance == nullptr) return;
+
     int totWeight = totalWeight();
     float totModWeight = (float)totalModifiedWeight();
 

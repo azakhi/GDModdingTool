@@ -7,9 +7,16 @@
 #include <unordered_map>
 #include <functional>
 #include <typeindex>
+#include <mutex>
 
 class DBRBase;
-struct Variable;
+
+struct DBRData
+{
+    std::vector<DBRBase*> dbrs;
+    std::unordered_map<std::string, int> fieldMap;
+    std::mutex lock;
+};
 
 class FileManager {
     const int THREAD_COUNT = 16;
@@ -21,13 +28,13 @@ class FileManager {
     std::string _modDirectory;
     std::vector<std::string> _subDirectories;
     std::vector<std::string> _templateNames;
-    std::unordered_map<std::string, std::vector<DBRBase*>> _templateMap;
+    std::unordered_map<std::string, DBRData*> _templateMap;
     std::unordered_map<std::type_index, std::vector<DBRBase*>> _typeMap;
     std::unordered_map<std::string, DBRBase*> _fileMap;
-    int _factionCount = 0;
     std::unordered_map<std::string, int> _factionMap;
     void _scanFiles();
     void _save(int tnum, int size, std::vector<DBRBase*> temps);
+    int _addField(DBRData* data, std::string field);
 
 public:
     FileManager(std::string gameDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
@@ -62,8 +69,26 @@ public:
             return it->second;
         }
 
-        _factionMap[path] = _factionCount;
-        return _factionCount++;
+        int index = (int)_factionMap.size();
+        _factionMap[path] = index;
+        return index;
+    }
+
+    const int getFieldIndex(std::string templateName, std::string fieldName) {
+        auto it = _templateMap.find(templateName);
+        if (it == _templateMap.end()) {
+            throw "Template does not exist";
+        }
+
+        // TODO: Check if locking frequently is a performance problem
+        return _addField(_templateMap[templateName], fieldName);
+
+        //auto fieldIt = _templateMap[templateName]->fieldMap.find(templateName);
+        //if (fieldIt == _templateMap[templateName]->fieldMap.end()) {
+        //    return _addField(_templateMap[templateName], fieldName);
+        //}
+
+        //return fieldIt->second;
     }
 
     const std::vector<std::string> getTemplateNames() const;

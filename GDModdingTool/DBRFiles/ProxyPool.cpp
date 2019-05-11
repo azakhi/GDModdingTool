@@ -9,285 +9,101 @@ void ProxyPool::parse() {
 
     DBRBase::parse();
 
-    {
-        auto it = _fields.find("ignoreGameBalance");
-        if (it != _fields.end()) {
-            _ignoreGameBalance = it->second.second->value() == "1";
-        }
+    if (_fieldMap["ignoreGameBalance"] != nullptr) {
+        _ignoreGameBalance = _fieldMap["ignoreGameBalance"]->value() == "1";
     }
-    {
-        auto it = _fields.find("championChance");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _championChance = new NumericField<float>(field->name(), field->value(), false, 0.0f, 100.0f);
-            _fieldsOrdered[it->second.first] = _championChance;
-            _fields[field->name()] = std::make_pair(it->second.first, _championChance);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["championChance"] != nullptr) {
+        Field* field = _fieldMap["championChance"];
+        _championChance = new NumericField<float>(field->name(), field->value(), false, 0.0f, 100.0f);
+        _fieldMap["championChance"] = _championChance;
+        delete field;
+        field = nullptr;
     }
-    {
-        auto it = _fields.find("championMax");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _championMax = new NumericField<int>(field->name(), field->value());
-            _fieldsOrdered[it->second.first] = _championMax;
-            _fields[field->name()] = std::make_pair(it->second.first, _championMax);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["championMax"] != nullptr) {
+        Field* field = _fieldMap["championMax"];
+        _championMax = new NumericField<int>(field->name(), field->value());
+        _fieldMap["championMax"] = _championChance;
+        delete field;
+        field = nullptr;
     }
-    {
-        auto it = _fields.find("championMin");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _championMin = new NumericField<int>(field->name(), field->value());
-            _fieldsOrdered[it->second.first] = _championMin;
-            _fields[field->name()] = std::make_pair(it->second.first, _championMin);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["championMin"] != nullptr) {
+        Field* field = _fieldMap["championMin"];
+        _championMax = new NumericField<int>(field->name(), field->value());
+        _fieldMap["championMin"] = _championChance;
+        delete field;
+        field = nullptr;
     }
-    {
-        auto it = _fields.find("spawnMax");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _spawnMax = new NumericField<int>(field->name(), field->value());
-            _fieldsOrdered[it->second.first] = _spawnMax;
-            _fields[field->name()] = std::make_pair(it->second.first, _spawnMax);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["spawnMax"] != nullptr) {
+        Field* field = _fieldMap["spawnMax"];
+        _championMax = new NumericField<int>(field->name(), field->value());
+        _fieldMap["spawnMax"] = _championChance;
+        delete field;
+        field = nullptr;
     }
-    {
-        auto it = _fields.find("spawnMin");
-        if (it != _fields.end()) {
-            Field* field = it->second.second;
-            _spawnMin = new NumericField<int>(field->name(), field->value());
-            _fieldsOrdered[it->second.first] = _spawnMin;
-            _fields[field->name()] = std::make_pair(it->second.first, _spawnMin);
-            delete field;
-            field = nullptr;
-        }
+
+    if (_fieldMap["spawnMin"] != nullptr) {
+        Field* field = _fieldMap["spawnMin"];
+        _championMax = new NumericField<int>(field->name(), field->value());
+        _fieldMap["spawnMin"] = _championChance;
+        delete field;
+        field = nullptr;
     }
 
     for (int spawnNum = 1; spawnNum <= 15; spawnNum++) {
         for (int spawnType = 0; spawnType < 2; spawnType++) {
             std::string suffix = spawnType == 0 ? "" : "Champion";
 
-            auto nameIt = _fields.find("name" + suffix + std::to_string(spawnNum));
-            auto weightIt = _fields.find("weight" + suffix + std::to_string(spawnNum));
-            if (nameIt == _fields.end() || weightIt == _fields.end() || std::stoi(weightIt->second.second->value()) == 0) {
+            Field* nameField = _fieldMap["name" + suffix + std::to_string(spawnNum)];
+            Field* weightField = _fieldMap["weight" + suffix + std::to_string(spawnNum)];
+            if (nameField == nullptr || weightField == nullptr || std::stoi(weightField->value()) == 0) {
                 continue; // Skip if either is missing or weight is 0
             }
 
             Spawn s;
-            s.monster = _fileManager->getFile(nameIt->second.second->value());
-            Field* weightField = weightIt->second.second;
+            s.monster = _fileManager->getFile(nameField->value());
             NumericField<int>* weight = new NumericField<int>(weightField->name(), weightField->value(), true);
             s.weight = weight;
-            _fieldsOrdered[weightIt->second.first] = weight;
-            _fields[weightField->name()] = std::make_pair(weightIt->second.first, weight);
+            _fieldMap[weightField->name()] = weight;
             delete weightField;
             weightField = nullptr;
 
-            {
-                auto it = _fields.find("limit" + suffix + std::to_string(spawnNum));
-                if (it != _fields.end()) {
-                    Field* field = it->second.second;
-                    NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
-                    s.limit = newField;
-                    _fieldsOrdered[it->second.first] = newField;
-                    _fields[field->name()] = std::make_pair(it->second.first, newField);
-                    delete field;
-                    field = nullptr;
-                }
+            std::string fieldName = "limit" + suffix + std::to_string(spawnNum);
+            if (_fieldMap[fieldName] != nullptr) {
+                Field* field = _fieldMap[fieldName];
+                NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
+                s.limit = newField;
+                _fieldMap[fieldName] = newField;
+                delete field;
+                field = nullptr;
             }
-            {
-                auto it = _fields.find("maxPlayerLevel" + suffix + std::to_string(spawnNum));
-                if (it != _fields.end()) {
-                    Field* field = it->second.second;
-                    NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
-                    s.maxPlayerLevel = newField;
-                    _fieldsOrdered[it->second.first] = newField;
-                    _fields[field->name()] = std::make_pair(it->second.first, newField);
-                    delete field;
-                    field = nullptr;
-                }
+
+            fieldName = "maxPlayerLevel" + suffix + std::to_string(spawnNum);
+            if (_fieldMap[fieldName] != nullptr) {
+                Field* field = _fieldMap[fieldName];
+                NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
+                s.limit = newField;
+                _fieldMap[fieldName] = newField;
+                delete field;
+                field = nullptr;
             }
-            {
-                auto it = _fields.find("minPlayerLevel" + suffix + std::to_string(spawnNum));
-                if (it != _fields.end()) {
-                    Field* field = it->second.second;
-                    NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
-                    s.minPlayerLevel = newField;
-                    _fieldsOrdered[it->second.first] = newField;
-                    _fields[field->name()] = std::make_pair(it->second.first, newField);
-                    delete field;
-                    field = nullptr;
-                }
+
+            fieldName = "minPlayerLevel" + suffix + std::to_string(spawnNum);
+            if (_fieldMap[fieldName] != nullptr) {
+                Field* field = _fieldMap[fieldName];
+                NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
+                s.limit = newField;
+                _fieldMap[fieldName] = newField;
+                delete field;
+                field = nullptr;
             }
 
             _spawns[spawnType].push_back(s);
         }
     }
-
-/*
-    for (size_t i = 0; i < _fieldsOrdered.size(); i++) {
-        Field* field = _fieldsOrdered[i];
-        std::string name = field->name();
-
-        if (name == "ignoreGameBalance") {
-            _ignoreGameBalance = field->value() == "1";
-        }
-        else if (name == "championChance") {
-            _championChance = new NumericField<float>(name, field->value());
-            _fieldsOrdered[i] = _championChance;
-            _fields[name] = _championChance;
-            delete field;
-            field = nullptr;
-        }
-        else if (name == "championMax") {
-            _championMax = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = _championMax;
-            _fields[name] = _championMax;
-            delete field;
-            field = nullptr;
-        }
-        else if (name == "championMin") {
-            _championMin = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = _championMin;
-            _fields[name] = _championMin;
-            delete field;
-            field = nullptr;
-        }
-        else if (name == "spawnMax") {
-            _spawnMax = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = _spawnMax;
-            _fields[name] = _spawnMax;
-            delete field;
-            field = nullptr;
-        }
-        else if (name == "spawnMin") {
-            _spawnMin = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = _spawnMin;
-            _fields[name] = _spawnMin;
-            delete field;
-            field = nullptr;
-        }
-        else if (name.substr(0, 5) == "limit") {
-            size_t num = 0;
-            int spawnIndex = 0;
-
-            if (name.substr(5, 8) == "Champion") {
-                num = std::stoi(name.substr(13)) - 1;
-                spawnIndex = 1;
-            }
-            else {
-                num = std::stoi(name.substr(5)) - 1;
-            }
-
-            if (num >= _spawns[spawnIndex].size()) {
-                _spawns[spawnIndex].insert(_spawns[spawnIndex].end(), num - _spawns[spawnIndex].size() + 1, Spawn());
-            }
-
-            NumericField<int>* limit = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = limit;
-            _fields[name] = limit;
-            delete field;
-            field = nullptr;
-            _spawns[spawnIndex][num].limit = limit;
-        }
-        else if (name.substr(0, 14) == "maxPlayerLevel") {
-            size_t num = 0;
-            int spawnIndex = 0;
-
-            if (name.substr(14, 8) == "Champion") {
-                num = std::stoi(name.substr(22)) - 1;
-                spawnIndex = 1;
-            }
-            else {
-                num = std::stoi(name.substr(14)) - 1;
-            }
-
-            if (num >= _spawns[spawnIndex].size()) {
-                _spawns[spawnIndex].insert(_spawns[spawnIndex].end(), num - _spawns[spawnIndex].size() + 1, Spawn());
-            }
-
-            NumericField<int>* maxPlayerLevel = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = maxPlayerLevel;
-            _fields[name] = maxPlayerLevel;
-            delete field;
-            field = nullptr;
-            _spawns[spawnIndex][num].maxPlayerLevel = maxPlayerLevel;
-        }
-        else if (name.substr(0, 14) == "minPlayerLevel") {
-            size_t num = 0;
-            int spawnIndex = 0;
-
-            if (name.substr(14, 8) == "Champion") {
-                num = std::stoi(name.substr(22)) - 1;
-                spawnIndex = 1;
-            }
-            else {
-                num = std::stoi(name.substr(14)) - 1;
-            }
-
-            if (num >= _spawns[spawnIndex].size()) {
-                _spawns[spawnIndex].insert(_spawns[spawnIndex].end(), num - _spawns[spawnIndex].size() + 1, Spawn());
-            }
-
-            NumericField<int>* minPlayerLevel = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = minPlayerLevel;
-            _fields[name] = minPlayerLevel;
-            delete field;
-            field = nullptr;
-            _spawns[spawnIndex][num].minPlayerLevel = minPlayerLevel;
-        }
-        else if (name.substr(0, 4) == "name") {
-            size_t num = 0;
-            int spawnIndex = 0;
-
-            if (name.substr(4, 8) == "Champion") {
-                num = std::stoi(name.substr(12)) - 1;
-                spawnIndex = 1;
-            }
-            else {
-                num = std::stoi(name.substr(4)) - 1;
-            }
-
-            if (num >= _spawns[spawnIndex].size()) {
-                _spawns[spawnIndex].insert(_spawns[spawnIndex].end(), num - _spawns[spawnIndex].size() + 1, Spawn());
-            }
-
-            _spawns[spawnIndex][num].monster = _fileManager->getFile(field->value());
-        }
-        else if (name.substr(0, 6) == "weight") {
-            size_t num = 0;
-            int spawnIndex = 0;
-
-            if (name.substr(6, 8) == "Champion") {
-                num = std::stoi(name.substr(14)) - 1;
-                spawnIndex = 1;
-            }
-            else {
-                num = std::stoi(name.substr(6)) - 1;
-            }
-
-            if (num >= _spawns[spawnIndex].size()) {
-                _spawns[spawnIndex].insert(_spawns[spawnIndex].end(), num - _spawns[spawnIndex].size() + 1, Spawn());
-            }
-
-
-            NumericField<int>* weight = new NumericField<int>(name, field->value());
-            _fieldsOrdered[i] = weight;
-            _fields[name] = weight;
-            delete field;
-            field = nullptr;
-            _spawns[spawnIndex][num].weight = weight;
-        }
-    }
-*/
 
     _isParsed = true;
 }
