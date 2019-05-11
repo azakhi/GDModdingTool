@@ -72,7 +72,8 @@ int main()
     //customizer.adjustFactionRepRequirements(0.8f);
     //customizer.setItemStackLimit(TypePotion, 1000);
 
-    customizer.adjustSpecificLootAmount(10.0f, std::vector<ItemType>({TypeQuest}), std::vector<ItemClass>({ ClassQuest }), true);
+    //customizer.adjustSpecificLootAmount(10.0f, std::vector<ItemType>({TypeQuest}), std::vector<ItemClass>({ ClassQuest }), true);
+    customizer.adjustAffixWeight(10, AffixType::RareAffix, AffixType::RareAffix);
 
     std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
     Print << "Pre-parsing required files\n";

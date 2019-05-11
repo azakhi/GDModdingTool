@@ -391,6 +391,20 @@ void Customizer::setItemStackLimit(ItemType type, int limit) {
     _tasks.push_back(f2);
 }
 
+void Customizer::adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType) {
+    _addFileForPreParse<DynWeightAffixTable>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier, prefixType, suffixType]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<DynWeightAffixTable>();
+        for (auto temp : temps) {
+            DynWeightAffixTable* dynTable = (DynWeightAffixTable*)temp;
+            dynTable->adjustAffixWeight(multiplier, prefixType, suffixType);
+        }
+    };
+    _tasks.push_back(f);
+}
+
 void Customizer::_preParse(int tnum, std::vector<DBRBase*> temps) {
     _isThreadDone[tnum] = false;
     _threadProgress[tnum] = 0;

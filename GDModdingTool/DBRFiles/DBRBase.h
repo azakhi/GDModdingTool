@@ -14,8 +14,9 @@
 
 enum LootSource { Chest, Enemy, All };
 enum MonsterClass { NoClass = -1, Common, Champion, Hero, Quest, Boss };
-enum ItemClass {ClassNone = -1, ClassCommon, ClassMagical, ClassRare, ClassEpic, ClassLegendary, ClassQuest };
-enum ItemType {TypeNone = -1, TypeAmulet, TypeArmor, TypeBelt, TypeBlueprint, TypeComponent, TypeMedal, TypePotion, TypeQuest, TypeRelic, TypeRing, TypeShield, TypeWeapon };
+enum ItemClass { ClassNone = -1, ClassCommon, ClassMagical, ClassRare, ClassEpic, ClassLegendary, ClassQuest };
+enum ItemType { TypeNone = -1, TypeAmulet, TypeArmor, TypeBelt, TypeBlueprint, TypeComponent, TypeMedal, TypePotion, TypeQuest, TypeRelic, TypeRing, TypeShield, TypeWeapon };
+enum AffixType { NoAffix, NormalAffix, RareAffix };
 
 struct Loot
 {

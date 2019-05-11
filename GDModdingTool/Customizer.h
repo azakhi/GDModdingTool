@@ -70,6 +70,7 @@ public:
     void setMonsterClassMinPlayerLevel(MonsterClass monsterClass, int level);
     void adjustFactionRepRequirements(float multiplier);
     void setItemStackLimit(ItemType type, int limit);
+    void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);
 
 private:
     template <typename T>
