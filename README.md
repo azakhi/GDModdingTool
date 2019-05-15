@@ -1,1 +1,3 @@
-A WIP tool for Grim Dawn modding. While it works at the moment, use is not recommended. Fully parsing all required files causes usage of a lot memory, which is the very next issue in TODO list.
+A WIP tool for modding Grim Dawn with 2 main purposes:
+* Make modding, changing thousands of game files, easy and fast
+* Make it affected less, preferably none at all, by game updates (Whenever game gets an update, just run the program again. No need to wait for mod developer to update.)
