@@ -88,30 +88,41 @@ void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, s
             std::getline(configFile, line);
             modDirectory = StringTrim(line);
         }
-        else if (line == "$SubDirectories") {
-            while (std::getline(configFile, line)) {
-                line = StringTrim(line);
-                if (line == "" || line[0] == '#') {
-                    break;
-                }
-                else {
-                    subDirectories.push_back(line);
-                }
-            }
-        }
-        else if (line == "$Commands") {
-            while (std::getline(configFile, line)) {
-                line = StringTrim(line);
-                if (line == "" || line[0] == '#') {
-                    continue;
-                }
-                else {
-                    commands.push_back(line);
-                }
-            }
-        }
         else {
-            log_warning << "Found meaningless line in config file: " << line << "\n";
+            if (line == "$SubDirectories") {
+                while (std::getline(configFile, line)) {
+                    line = StringTrim(line);
+                    if (line == "" || line[0] == '#') {
+                        line = "";
+                        continue;
+                    }
+                    else if (line[0] == '$') { // Let others catch
+                        break;
+                    }
+                    else {
+                        subDirectories.push_back(line);
+                    }
+                }
+            }
+
+            if (line == "$Commands") {
+                while (std::getline(configFile, line)) {
+                    line = StringTrim(line);
+                    if (line == "" || line[0] == '#') {
+                        line = "";
+                        continue;
+                    }
+                    else if (line[0] == '$') { // Let others catch
+                        break;
+                    }
+                    else {
+                        commands.push_back(line);
+                    }
+                }
+            }
+
+            if (line != "")
+                log_warning << "Found meaningless line in config file: " << line << "\n";
         }
     }
 }
