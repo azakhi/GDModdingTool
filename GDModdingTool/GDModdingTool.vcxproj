@@ -182,6 +182,7 @@
     <ClCompile Include="DBRFiles\Monster.cpp" />
     <ClCompile Include="DBRFiles\ProxyPool.cpp" />
     <ClCompile Include="DBRFiles\DBRBase.cpp" />
+    <ClCompile Include="Logger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConsolePrinter.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="DBRFiles\Monster.h" />
     <ClInclude Include="DBRFiles\ProxyPool.h" />
     <ClInclude Include="DBRFiles\DBRBase.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

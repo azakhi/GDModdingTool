@@ -65,6 +65,8 @@ int main()
     Print << fileManager.progressTotal() << " files saved\n";
     std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
     Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
+    Print << "Press Enter to exit ..\n";
+    getchar();
 }
 
 
@@ -107,6 +109,9 @@ void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, s
                     commands.push_back(line);
                 }
             }
+        }
+        else {
+            log_warning << "Found meaningless line in config file: " << line << "\n";
         }
     }
 }

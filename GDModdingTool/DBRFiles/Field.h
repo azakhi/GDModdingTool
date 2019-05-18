@@ -6,6 +6,16 @@
 #include <vector>
 #include <algorithm>
 
+#include "../Logger.h"
+
+#ifndef log_info
+#define log_info (*Logger::logger())
+#define log_warning (*Logger::logger())<<"WARNING: "
+#define log_debug (*Logger::logger())<<"DEBUG: "
+#define log_error (*Logger::logger())<<"ERROR: "
+#endif // !log_info
+
+
 class Field {
     std::string _value;
     std::string* _modifiedValue = nullptr;

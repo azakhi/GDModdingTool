@@ -113,17 +113,19 @@ void Customizer::_parseCommands(std::vector<std::string> commands) {
 
         if (args.size() > 0) {
             if (_commandMap.find(args[0]) == _commandMap.end()) {
-                // Should be logged
+                log_error << "Unknown command: " << s << "\n";
                 continue;
             }
 
             const Command& c = _commandMap[args[0]];
+            std::string commandName = args[0];
             args.erase(args.begin());
             if (!c.isValid(args)) {
-                // Should be logged
+                log_error << "Invalid parameters: " << s << "\n";
                 continue;
             }
             
+            log_info << "Running command: " << commandName << "\n";
             c.method(args);
         }
     }
