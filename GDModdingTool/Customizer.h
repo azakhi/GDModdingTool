@@ -3,6 +3,7 @@
 #include <functional>
 #include <mutex>
 #include <typeindex>
+#include <unordered_map>
 
 #include "FileManager.h"
 #include "DBRFiles/DBRBase.h"
@@ -14,9 +15,57 @@
 #include "DBRFiles/DynWeightAffixTable.h"
 #include "DBRFiles/LevelTable.h"
 
+class ParamTypes
+{
+public:
+    // Types
+    static const std::function<int(std::string)> Integer;
+    static const std::function<float(std::string)> Float;
+    static const std::function<bool(std::string)> Boolean;
+    static const std::function<AffixType(std::string)> AffixTypeEnum;
+    static const std::function<LootSource(std::string)> LootSourceEnum;
+    static const std::function<MonsterClass(std::string)> MonsterClassEnum;
+    static const std::function<ItemType(std::string)> ItemTypeEnum;
+    static const std::function<ItemClass(std::string)> ItemClassEnum;
+    template <typename T>
+    static const std::function<std::vector<T>(std::string, std::function<T(std::string)>)> Vector;
+
+    // Validators
+    static const std::function<bool(std::string)> IntegerValidator;
+    static const std::function<bool(std::string)> FloatValidator;
+    static const std::function<bool(std::string)> BooleanValidator;
+    static const std::function<bool(std::string)> AffixTypeEnumValidator;
+    static const std::function<bool(std::string)> LootSourceEnumValidator;
+    static const std::function<bool(std::string)> MonsterClassEnumValidator;
+    static const std::function<bool(std::string)> ItemTypeEnumValidator;
+    static const std::function<bool(std::string)> ItemClassEnumValidator;
+    static const std::function<bool(std::string, std::function<bool(std::string)>)> VectorValidator;
+};
+
 class Customizer
 {
     const int THREAD_COUNT = 16;
+
+    class Command
+    {
+    public:
+        Command() {};
+        Command(std::vector<std::function<bool(std::string)>> vs, std::function<void(std::vector<std::string>)> m) : validators(vs), method(m) {}
+        std::vector<std::function<bool(std::string)>> validators;
+        std::function<void(std::vector<std::string>)> method;
+        bool isValid(std::vector<std::string> params) const {
+            if (params.size() < validators.size()) return false;
+            for (size_t i = 0; i < validators.size(); i++) {
+                if (!validators[i](params[i])) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    };
+
+    std::unordered_map<std::string, Command> _commandMap;
     FileManager* _fileManager;
     std::vector<std::function<void()>> _tasks;
     std::vector<std::type_index> _preParseFiles;
@@ -29,7 +78,7 @@ class Customizer
     int _progressTotal;
 
 public:
-    Customizer(FileManager* fileManager);
+    Customizer(FileManager* fileManager, std::vector<std::string> commands = std::vector<std::string>());
 
     const bool isWorkersDone() const {
         for (const auto itd : _isThreadDone) {
@@ -51,28 +100,29 @@ public:
 
     void preParse();
     void runTasks();
+    void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);
+    void adjustChampionChance(float multiplier);
+    void adjustChampionSpawnAmount(float multiplier);
+    void adjustCommonSpawnAmount(float multiplier);
+    void adjustExpRequirement(float multiplier);
+    void adjustFactionRepRequirements(float multiplier);
+    void adjustGoldDrop(float multiplier);
     void adjustLifeIncrement(float multiplier);
+    void adjustLootAmount(float multiplier, LootSource source = LootSource::All);
+    void adjustMonsterClassWeight(float multiplier, MonsterClass monsterClass);
+    void adjustSpawnAmount(float multiplier);
+    void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
+    void increaseMonsterClassLimit(int limit, MonsterClass monsterClass);
+    void removeDifficultyLimits();
+    void setDevotionPointsPerShrine(int point);
+    void setItemStackLimit(int limit, ItemType type);
     void setMaxDevotionPoints(int point);
     void setMaxLevel(int level);
-    void adjustGoldDrop(float multiplier);
-    void adjustExpRequirement(float multiplier);
-    void setDevotionPointsPerShrine(int point);
-    void adjustCommonSpawnAmount(float multiplier);
-    void adjustChampionSpawnAmount(float multiplier);
-    void adjustChampionChance(float multiplier);
-    void adjustSpawnAmount(float multiplier);
-    void adjustLootAmount(float multiplier, LootSource source = LootSource::All);
-    void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
-    void removeDifficultyLimits();
-    void adjustMonsterClassWeight(MonsterClass monsterClass, float multiplier);
-    void increaseMonsterClassLimit(MonsterClass monsterClass, int limit);
-    void setMonsterClassMaxPlayerLevel(MonsterClass monsterClass, int level);
-    void setMonsterClassMinPlayerLevel(MonsterClass monsterClass, int level);
-    void adjustFactionRepRequirements(float multiplier);
-    void setItemStackLimit(ItemType type, int limit);
-    void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);
+    void setMonsterClassMaxPlayerLevel(int level, MonsterClass monsterClass);
+    void setMonsterClassMinPlayerLevel(int level, MonsterClass monsterClass);
 
 private:
+    void _parseCommands(std::vector<std::string> commands);
     template <typename T>
     void _addFileForPreParse();
     void _addFileForPreParse(std::string s);

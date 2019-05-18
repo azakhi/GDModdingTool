@@ -21,11 +21,11 @@
 
 #include <iostream>
 
-FileManager::FileManager(std::string gameDirectory, std::string modDirectory, std::vector<std::string> subDirectories) {
+FileManager::FileManager(std::string recordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories) {
     _progressTotal = 0;
     _threadProgress.resize(THREAD_COUNT, 0);
     _isThreadDone.resize(THREAD_COUNT, false);
-    _gameDirectory = gameDirectory;
+    _recordsDirectory = recordsDirectory;
     _modDirectory = modDirectory;
     _subDirectories = subDirectories;
 
@@ -140,7 +140,7 @@ void FileManager::_scanFiles() {
     templateMap["weapon_axe.tpl"] = [this](std::filesystem::directory_entry de, std::string s) { addTemplate<ItemBase>(de, s); };
 
     for (auto dir : _subDirectories) {
-        for (const auto & entry : std::filesystem::recursive_directory_iterator(_gameDirectory + "\\" + dir)) {
+        for (const auto & entry : std::filesystem::recursive_directory_iterator(_recordsDirectory + "\\" + dir)) {
             _threadProgress[0]++;
             std::string extension = entry.path().extension().string();
             if (extension != ".dbr") {
@@ -210,7 +210,7 @@ void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, s
     if (_typeMap.find(typeIndex) == _typeMap.end()) _typeMap[typeIndex] = std::vector<DBRBase*>();
     _typeMap[typeIndex].push_back(temp);
     _templateMap[templateName]->dbrs.push_back(temp);
-    std::string pathAsValue = "records" + directoryEntry.path().string().substr(_gameDirectory.length());
+    std::string pathAsValue = "records" + directoryEntry.path().string().substr(_recordsDirectory.length());
     std::replace(pathAsValue.begin(), pathAsValue.end(), '\\', '/');
     _fileMap[pathAsValue] = temp;
 }
@@ -244,7 +244,7 @@ void FileManager::_save(int tnum, int size, std::vector<DBRBase*> temps) {
     for (int i = (tnum * size); i < end; i++) {
         auto temp = temps[i];
         if (temp->isDirty()) {
-            std::string filePath = temp->directoryEntry().path().string().substr(_gameDirectory.length());
+            std::string filePath = temp->directoryEntry().path().string().substr(_recordsDirectory.length());
             filePath = _modDirectory + filePath;
             std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
             std::ofstream dbrFile;

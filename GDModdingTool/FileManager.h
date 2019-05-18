@@ -24,7 +24,7 @@ class FileManager {
     std::vector<bool> _isThreadDone;
     int _progressTotal;
 
-    std::string _gameDirectory;
+    std::string _recordsDirectory;
     std::string _modDirectory;
     std::vector<std::string> _subDirectories;
     std::vector<std::string> _templateNames;
@@ -37,7 +37,7 @@ class FileManager {
     int _addField(DBRData* data, std::string field);
 
 public:
-    FileManager(std::string gameDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
+    FileManager(std::string recordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
 
     const int threadProgress() const {
         int total = 0;

@@ -5,14 +5,128 @@
 #include <algorithm>
 #include <thread>
 
-#include <iostream>
+const std::function<int(std::string)> ParamTypes::Integer = [](std::string s) { return std::stoi(s); };
+const std::function<float(std::string)> ParamTypes::Float = [](std::string s) { return std::stof(s); };
+const std::function<bool(std::string)> ParamTypes::Boolean = [](std::string s) { return s == "True"; };
+const std::function<AffixType(std::string)> ParamTypes::AffixTypeEnum = [](std::string s) {
+    if (s == "NoAffix") return AffixType::NoAffix;
+    else if (s == "NormalAffix") return AffixType::NormalAffix;
+    else if (s == "RareAffix") return AffixType::RareAffix;
+    else throw "Invalid Affix";
+};
+const std::function<LootSource(std::string)> ParamTypes::LootSourceEnum = [](std::string s) {
+    if (s == "Chest") return LootSource::Chest;
+    else if (s == "Enemy") return LootSource::Enemy;
+    else if (s == "All") return LootSource::All;
+    else throw "Invalid Affix";
+};
+const std::function<MonsterClass(std::string)> ParamTypes::MonsterClassEnum = [](std::string s) { return DBRBase::MonsterClassOf(s); };
+const std::function<ItemType(std::string)> ParamTypes::ItemTypeEnum = [](std::string s) { return DBRBase::ItemTypeOf(s); };
+const std::function<ItemClass(std::string)> ParamTypes::ItemClassEnum = [](std::string s) { return DBRBase::ItemClassOf(s); };
+template <typename T>
+const std::function<std::vector<T>(std::string, std::function<T(std::string)>)> ParamTypes::Vector = [](std::string s, std::function<T(std::string)> f, std::vector<T> container = std::vector<T>()) {
+    std::stringstream ss(s);
+    std::string item = "";
+    while (std::getline(ss, item, ',')) container.push_back(f(item));
+    return container;
+};
 
-Customizer::Customizer(FileManager* fileManager) {
+const std::function<bool(std::string)> ParamTypes::IntegerValidator = [](std::string s) { try { std::stoi(s); return true; } catch (...) { return false; } };
+const std::function<bool(std::string)> ParamTypes::FloatValidator = [](std::string s) { try { std::stof(s); return true; } catch (...) { return false; } };
+const std::function<bool(std::string)> ParamTypes::BooleanValidator = [](std::string s) { return s == "True" || s == "False"; };
+const std::function<bool(std::string)> ParamTypes::AffixTypeEnumValidator = [](std::string s) { try { ParamTypes::AffixTypeEnum(s); return true; } catch (...) { return false; } };
+const std::function<bool(std::string)> ParamTypes::LootSourceEnumValidator = [](std::string s) { try { ParamTypes::LootSourceEnum(s); return true; } catch (...) { return false; } };
+const std::function<bool(std::string)> ParamTypes::MonsterClassEnumValidator = [](std::string s) { return DBRBase::MonsterClassOf(s) != MonsterClass::NoClass; };
+const std::function<bool(std::string)> ParamTypes::ItemTypeEnumValidator = [](std::string s) { return DBRBase::ItemTypeOf(s) != ItemType::TypeNone; };
+const std::function<bool(std::string)> ParamTypes::ItemClassEnumValidator = [](std::string s) { return DBRBase::ItemClassOf(s) != ItemClass::ClassNone; };
+const std::function<bool(std::string, std::function<bool(std::string)>)> ParamTypes::VectorValidator = [](std::string s, std::function<bool(std::string)> f) {
+    std::stringstream ss(s);
+    std::string item = "";
+    while (std::getline(ss, item, ',')) if (!f(item)) return false;
+    return true;
+};
+
+Customizer::Customizer(FileManager* fileManager, std::vector<std::string> commands/* = std::vector<std::string>()*/) {
     _fileManager = fileManager;
     _remainingWorkStart = 0;
     _threadProgress.resize(THREAD_COUNT, 0);
     _isThreadDone.resize(THREAD_COUNT, false);
     _progressTotal = 0;
+
+    _commandMap["AdjustAffixWeight"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::AffixTypeEnumValidator, ParamTypes::AffixTypeEnumValidator }),
+        [this](std::vector<std::string> params) { adjustAffixWeight(ParamTypes::Float(params[0]), ParamTypes::AffixTypeEnum(params[1]), ParamTypes::AffixTypeEnum(params[2])); });
+    _commandMap["AdjustChampionChance"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustChampionChance(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustChampionSpawnAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustChampionSpawnAmount(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustCommonSpawnAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustCommonSpawnAmount(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustExpRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustExpRequirement(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustFactionRepRequirements"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustFactionRepRequirements(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustGoldDrop"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustGoldDrop(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustLifeIncrement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustLifeIncrement(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustLootAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::LootSourceEnumValidator }),
+        [this](std::vector<std::string> params) { adjustLootAmount(ParamTypes::Float(params[0]), ParamTypes::LootSourceEnum(params[1])); });
+    _commandMap["AdjustMonsterClassWeight"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::MonsterClassEnumValidator }),
+        [this](std::vector<std::string> params) { adjustMonsterClassWeight(ParamTypes::Float(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
+    _commandMap["AdjustSpawnAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustSpawnAmount(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustSpecificLootAmount"] = Command(std::vector<std::function<bool(std::string)>>(
+            { ParamTypes::FloatValidator, [](std::string s) {return ParamTypes::VectorValidator(s, ParamTypes::ItemTypeEnumValidator); },
+            [](std::string s) {return ParamTypes::VectorValidator(s, ParamTypes::ItemClassEnumValidator); }, ParamTypes::BooleanValidator }
+        ),
+        [this](std::vector<std::string> params) { adjustSpecificLootAmount(
+            ParamTypes::Float(params[0]), ParamTypes::Vector<ItemType>(params[1], ParamTypes::ItemTypeEnum),
+            ParamTypes::Vector<ItemClass>(params[2], ParamTypes::ItemClassEnum), ParamTypes::Boolean(params[3])
+        ); });
+    _commandMap["IncreaseMonsterClassLimit"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::MonsterClassEnumValidator }),
+        [this](std::vector<std::string> params) { increaseMonsterClassLimit(ParamTypes::Integer(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
+    _commandMap["RemoveDifficultyLimits"] = Command(std::vector<std::function<bool(std::string)>>(), [this](std::vector<std::string> params) { removeDifficultyLimits(); });
+    _commandMap["SetDevotionPointsPerShrine"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setDevotionPointsPerShrine(ParamTypes::Integer(params[0])); });
+    _commandMap["SetItemStackLimit"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::ItemTypeEnumValidator }),
+        [this](std::vector<std::string> params) { setItemStackLimit(ParamTypes::Integer(params[0]), ParamTypes::ItemTypeEnum(params[1])); });
+    _commandMap["SetMaxDevotionPoints"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setMaxDevotionPoints(ParamTypes::Integer(params[0])); });
+    _commandMap["SetMaxLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setMaxLevel(ParamTypes::Integer(params[0])); });
+    _commandMap["SetMonsterClassMaxPlayerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::MonsterClassEnumValidator }),
+        [this](std::vector<std::string> params) { setMonsterClassMaxPlayerLevel(ParamTypes::Integer(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
+    _commandMap["SetMonsterClassMinPlayerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::MonsterClassEnumValidator }),
+        [this](std::vector<std::string> params) { setMonsterClassMinPlayerLevel(ParamTypes::Integer(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
+
+    _parseCommands(commands);
+}
+
+void Customizer::_parseCommands(std::vector<std::string> commands) {
+    for (std::string s : commands) {
+        std::stringstream ss(s);
+        std::vector<std::string> args;
+        std::string item = "";
+        while (std::getline(ss, item, ' ')) {
+            args.push_back(item);
+        }
+
+        if (args.size() > 0) {
+            if (_commandMap.find(args[0]) == _commandMap.end()) {
+                // Should be logged
+                continue;
+            }
+
+            const Command& c = _commandMap[args[0]];
+            args.erase(args.begin());
+            if (!c.isValid(args)) {
+                // Should be logged
+                continue;
+            }
+            
+            c.method(args);
+        }
+    }
 }
 
 template <typename T>
@@ -277,7 +391,7 @@ void Customizer::removeDifficultyLimits() {
     _tasks.push_back(f);
 }
 
-void Customizer::adjustMonsterClassWeight(MonsterClass monsterClass, float multiplier) {
+void Customizer::adjustMonsterClassWeight(float multiplier, MonsterClass monsterClass) {
     _addFileForPreParse<Monster>();
     _addFileForPreParse<ProxyPool>();
 
@@ -292,7 +406,7 @@ void Customizer::adjustMonsterClassWeight(MonsterClass monsterClass, float multi
     _tasks.push_back(f);
 }
 
-void Customizer::increaseMonsterClassLimit(MonsterClass monsterClass, int limit) {
+void Customizer::increaseMonsterClassLimit(int limit, MonsterClass monsterClass) {
     _addFileForPreParse<Monster>();
     _addFileForPreParse<ProxyPool>();
 
@@ -307,7 +421,7 @@ void Customizer::increaseMonsterClassLimit(MonsterClass monsterClass, int limit)
     _tasks.push_back(f);
 }
 
-void Customizer::setMonsterClassMaxPlayerLevel(MonsterClass monsterClass, int level) {
+void Customizer::setMonsterClassMaxPlayerLevel(int level, MonsterClass monsterClass) {
     _addFileForPreParse<Monster>();
     _addFileForPreParse<ProxyPool>();
 
@@ -322,7 +436,7 @@ void Customizer::setMonsterClassMaxPlayerLevel(MonsterClass monsterClass, int le
     _tasks.push_back(f);
 }
 
-void Customizer::setMonsterClassMinPlayerLevel(MonsterClass monsterClass, int level) {
+void Customizer::setMonsterClassMinPlayerLevel(int level, MonsterClass monsterClass) {
     _addFileForPreParse<Monster>();
     _addFileForPreParse<ProxyPool>();
 
@@ -360,7 +474,7 @@ void Customizer::adjustFactionRepRequirements(float multiplier) {
     _tasks.push_back(f);
 }
 
-void Customizer::setItemStackLimit(ItemType type, int limit) {
+void Customizer::setItemStackLimit(int limit, ItemType type) {
     _addFileForPreParse<ItemBase>();
 
     FileManager* fmCopy = _fileManager;
