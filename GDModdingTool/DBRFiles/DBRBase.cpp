@@ -30,7 +30,7 @@ void DBRBase::applyChanges() {
 
 void DBRBase::addFieldIfNotExists(std::string fieldName, std::string value) {
     parse();
-    if (_fieldMap.contains(fieldName)) {
+    if (_fieldMap[fieldName] != nullptr) {
         // exists, return
         return;
     }
