@@ -1,0 +1,38 @@
+$RecordsDirectory
+C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\database\records
+
+$ModDirectory
+C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\test\database\records
+
+$SubDirectories
+creatures
+game
+items
+proxies
+interactive
+
+$Commands
+
+# More monster spawns
+AdjustChampionChance 2
+AdjustChampionSpawnAmount 2.5
+AdjustCommonSpawnAmount 2
+AdjustMonsterClassWeight 3 Hero
+
+# More and better loot
+AdjustGoldDrop 5
+AdjustLootAmount 3 All
+AdjustSpecificLootAmount 10 Component,Blueprint,Quest Epic,Legendary,Quest False
+AdjustAffixWeight 10 RareAffix RareAffix
+AdjustAffixWeight 5 RareAffix NormalAffix
+AdjustAffixWeight 5 NormalAffix RareAffix
+
+# Less XP and Reputation requirement
+AdjustExpRequirement 0.66
+AdjustFactionRepRequirements 0.75
+
+# Monster scaling
+RemoveDifficultyLimits
+
+# Quality of life
+SetItemStackLimit 500 Potion

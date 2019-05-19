@@ -1,0 +1,114 @@
+# All lines starting with '#' ignored by the program
+# Do not change lines starting with '$' in any way
+
+# Directory of database records to use
+$RecordsDirectory
+C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\database\records
+
+# Directory where changed files should be put. If you created a new mod, use database\records subdirectory of it
+$ModDirectory
+C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\test\database\records
+
+#Subdirectories to scan for files. Limiting subdirectories helps with performance and preventing unexpected bugs.
+#Do not change if you don't know what you are doing
+$SubDirectories
+creatures
+game
+items
+proxies
+interactive
+
+$Commands
+
+# Commands are run in order and multiple of same command is permitted. However, unless otherwise stated, a command OVERRIDES value set by a previous command
+# Remove '#' at the start of the line to use a command
+
+# Adjusts weight of speficied prefix-suffix combination. Can be used multiple times to cover different combinations.
+# Parameter 1 (Float): Weights of combinations multiplied by this
+# Parameter 2: Type of prefix. Valid values: NoAffix, NormalAffix, RareAffix
+# Parameter 3: Type of suffix. Valid values: NoAffix, NormalAffix, RareAffix
+#AdjustAffixWeight 5 RareAffix RareAffix
+
+# Adjusts chance of spawning from Champion pool (not necessarily champion! Could even be normal or hero).
+# Parameter 1 (Float): Chance multiplied by this (Chance is percentage and limited to 0-100)
+#AdjustChampionChance 1.5
+
+# Adjusts amount of spawns from Champion pool.
+# Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
+#AdjustChampionSpawnAmount 2.5
+
+# Adjusts amount of spawns from normal pool.
+# Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
+#AdjustCommonSpawnAmount 1.5
+
+# Adjusts amount of required XP per level.
+# Parameter 1 (Float): XP requirement is multiplied by this
+#AdjustExpRequirement 0.66
+
+# Adjusts amount of required reputation for factions. This affects all levels (both negative and positive levels).
+# Parameter 1 (Float): Requirement is multiplied by this
+#AdjustFactionRepRequirements 0.75
+
+# Adjusts amount of gold per loot
+# Parameter 1 (Float): Gold amount is multiplied by this
+#AdjustGoldDrop 3
+
+# Adjusts amount of life gained per level/stats. High values of this will make game far too easy and ruin your enjoyment. Use at your own discretion.
+# Parameter 1 (Float): Amount of life gained is multiplied by this and then rounded to closest smaller integer.
+#AdjustLifeIncrement 1.05
+
+# Adjusts amount of loot from given source
+# Parameter 1 (Float): Amount is multiplied by this
+# Parameter 2: Source of loot. Valid values: Chest, Enemy, All
+#AdjustLootAmount 3.33333 Chest
+
+# Adjusts weight of given monster class. This changes probability of a class of monsters to be chosen from a pool.
+# Parameter 1 (Float): Weight of class is multiplied by this
+# Parameter 2: Monster class. Valid values: Common, Champion, Hero, Quest, Boss
+#AdjustMonsterClassWeight 5.789 Hero
+
+# Adjusts amount of spawns. Same with calling AdjustChampionSpawnAmount and AdjustCommonSpawnAmount. This overrides previous calls to any of 3!
+# Parameter 1 (Float): Amount is multiplied by this
+#AdjustSpawnAmount 3.33
+
+# Adjusts amount of specific loot combination. Can be used multiple times to cover different combinations.
+# Parameter 1 (Float): Amount is multiplied by this
+# Parameter 2: List of item types. Separate values with ','. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
+# Parameter 3: List of item classes (rarities). Separate values with ','. Valid values: Common, Magical, Rare, Epic, Legendary, Quest
+# Parameter 4 (Boolean): Should types and classes be combined with AND or OR? AND makes it apply to loots satisfying both while OR requires only one to satisfy. Use 'True' for AND and 'False' for OR.
+#AdjustSpecificLootAmount 1.333 Component,Amulet Quest,Rare True
+
+# Increases limit of given monster class by given amount. This is an upper limit. Most of heroes are limited to 1. Increasing allows more heroes (combined with AdjustChampionChance and AdjustChampionSpawnAmount). However you will see same heroes multiple times in a monster group. Note: Monster pool files with 'ignoreGameBalance' set to 1 is not affected by any changes. Those files are generally special files like quest bosses or aetherial crystals and changing them likely to cause unexpected/unwanted bugs and results.
+# Parameter 1 (Integer): Limit is increased by this
+# Parameter 2: Monster class. Valid values: Common, Champion, Hero, Quest, Boss
+#IncreaseMonsterClassLimit 2 Hero
+
+# Removes monster level limits to allow monsters to scale to player level. This affects almost every area in every difficulty!
+#RemoveDifficultyLimits
+
+# Sets devotion point gained per shrine to given amount
+# Parameter 1 (Integer)
+#SetDevotionPointsPerShrine 2
+
+# Changes the limit of stack for given item type. Can be used multiple times for different types.
+# Parameter 1 (Integer): New stack limit
+# Parameter 2: Item type. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
+#SetItemStackLimit 300 Potion
+
+# Sets maximum amount of devotion points player can have.
+# Parameter 1 (Integer)
+#SetMaxDevotionPoints 75
+
+# Sets maximum level player can reach.
+# Parameter 1 (Integer)
+#SetMaxLevel 120
+
+# Changes maximum player level that a player will encounter given class of monster
+# Parameter 1 (Integer): Max player level
+# Parameter 2: Monster class. Valid values: Common, Champion, Hero, Quest, Boss
+#SetMonsterClassMaxPlayerLevel 30 Common
+
+# Changes minimum player level that a player will encounter given class of monster
+# Parameter 1 (Integer): Min player level
+# Parameter 2: Monster class. Valid values: Common, Champion, Hero, Quest, Boss
+#SetMonsterClassMinPlayerLevel 30 Hero
