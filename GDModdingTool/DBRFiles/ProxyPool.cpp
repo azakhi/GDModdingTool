@@ -24,31 +24,31 @@ void ProxyPool::parse() {
     if (_fieldMap["championMax"] != nullptr) {
         Field* field = _fieldMap["championMax"];
         _championMax = new NumericField<int>(field->name(), field->value());
-        _fieldMap["championMax"] = _championChance;
+        _fieldMap["championMax"] = _championMax;
         delete field;
         field = nullptr;
     }
 
     if (_fieldMap["championMin"] != nullptr) {
         Field* field = _fieldMap["championMin"];
-        _championMax = new NumericField<int>(field->name(), field->value());
-        _fieldMap["championMin"] = _championChance;
+        _championMin = new NumericField<int>(field->name(), field->value());
+        _fieldMap["championMin"] = _championMin;
         delete field;
         field = nullptr;
     }
 
     if (_fieldMap["spawnMax"] != nullptr) {
         Field* field = _fieldMap["spawnMax"];
-        _championMax = new NumericField<int>(field->name(), field->value());
-        _fieldMap["spawnMax"] = _championChance;
+        _spawnMax = new NumericField<int>(field->name(), field->value());
+        _fieldMap["spawnMax"] = _spawnMax;
         delete field;
         field = nullptr;
     }
 
     if (_fieldMap["spawnMin"] != nullptr) {
         Field* field = _fieldMap["spawnMin"];
-        _championMax = new NumericField<int>(field->name(), field->value());
-        _fieldMap["spawnMin"] = _championChance;
+        _spawnMin = new NumericField<int>(field->name(), field->value());
+        _fieldMap["spawnMin"] = _spawnMin;
         delete field;
         field = nullptr;
     }
