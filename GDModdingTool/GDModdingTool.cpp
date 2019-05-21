@@ -15,17 +15,22 @@
 #include "FileManager.h"
 #include "DBRFiles/DBRBase.h"
 
-void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, std::vector<std::string>& subDirectories, std::vector<std::string>& commands);
+struct Config
+{
+    std::string recordsDir = "";
+    std::string addRecordsDir = "";
+    std::string modDir = "";
+    std::vector<std::string> subDirs;
+    std::vector<std::string> commands;
+};
+
+void parseConfigFile(Config& config);
 
 int main()
 {
-    std::string recordsDirectory = "";
-    std::string modDirectory = "";
-    std::vector<std::string> subDirectories;
-    std::vector<std::string> commands;
-
-    parseConfigFile(recordsDirectory, modDirectory, subDirectories, commands);
-    FileManager fileManager(recordsDirectory, modDirectory, subDirectories);
+    Config config;
+    parseConfigFile(config);
+    FileManager fileManager(config.recordsDir, config.addRecordsDir, config.modDir, config.subDirs);
 
     std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
     Print << "Scanning files\n";
@@ -40,7 +45,7 @@ int main()
     auto templateNames = fileManager.getTemplateNames();
     Print << templateNames.size() << " template names found\n\n";
 
-    Customizer customizer(&fileManager, commands);
+    Customizer customizer(&fileManager, config.commands);
     std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
     Print << "Pre-parsing required files\n";
     customizer.preParse();
@@ -70,7 +75,7 @@ int main()
 }
 
 
-void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, std::vector<std::string>& subDirectories, std::vector<std::string>& commands) {
+void parseConfigFile(Config& config) {
     std::ifstream configFile;
     configFile.open("config.txt");
     std::string line;
@@ -82,11 +87,23 @@ void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, s
 
         if (line == "$RecordsDirectory") {
             std::getline(configFile, line);
-            recordsDirectory = StringTrim(line);
+            line = StringTrim(line);
+            if (line[line.size() - 1] != '\\') line.push_back('\\');
+            config.recordsDir = line;
+        }
+        else if (line == "$AdditionalRecordsDirectory") {
+            std::getline(configFile, line);
+            line = StringTrim(line);
+            if (line[line.size() - 1] != '\\') line.push_back('\\');
+            config.addRecordsDir = line;
         }
         else if (line == "$ModDirectory") {
             std::getline(configFile, line);
-            modDirectory = StringTrim(line);
+            line = StringTrim(line);
+            if (line[line.size() - 1] != '\\') line.push_back('\\');
+            if (line.substr(line.size() - 8, 8) == "records\\") line = line.substr(0, line.size() - 8);
+            if (line.substr(line.size() - 9, 9) == "database\\") line = line.substr(0, line.size() - 9);
+            config.modDir = line;
         }
         else {
             if (line == "$SubDirectories") {
@@ -100,7 +117,7 @@ void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, s
                         break;
                     }
                     else {
-                        subDirectories.push_back(line);
+                        config.subDirs.push_back(line);
                     }
                 }
             }
@@ -116,7 +133,8 @@ void parseConfigFile(std::string& recordsDirectory, std::string& modDirectory, s
                         break;
                     }
                     else {
-                        commands.push_back(line);
+                        config.commands.push_back(line);
+                        line = "";
                     }
                 }
             }

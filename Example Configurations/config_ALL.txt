@@ -5,6 +5,10 @@
 $RecordsDirectory
 C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\database\records
 
+# Directory of database records that override base game files. Use this option by removing #s if you want to modift another mod. This path should be the path of 'database\records' folder of mod
+#$AdditionalRecordsDirectory
+#C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\MyCustomMod\database\records
+
 # Directory where changed files should be put. If you created a new mod, use database\records subdirectory of it
 $ModDirectory
 C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\test\database\records

@@ -25,6 +25,7 @@ class FileManager {
     int _progressTotal;
 
     std::string _recordsDirectory;
+    std::string _addRecordsDirectory;
     std::string _modDirectory;
     std::vector<std::string> _subDirectories;
     std::vector<std::string> _templateNames;
@@ -33,11 +34,12 @@ class FileManager {
     std::unordered_map<std::string, DBRBase*> _fileMap;
     std::unordered_map<std::string, int> _factionMap;
     void _scanFiles();
-    void _save(int tnum, int size, std::vector<DBRBase*> temps);
+    void _save(int tnum, int size, std::vector<std::pair<DBRBase*, std::string>> temps);
     int _addField(DBRData* data, std::string field);
+    std::string _parseTemplateName(std::filesystem::directory_entry entry);
 
 public:
-    FileManager(std::string recordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
+    FileManager(std::string recordsDirectory, std::string addRecordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
 
     const int threadProgress() const {
         int total = 0;
@@ -101,7 +103,7 @@ public:
     void save();
 
     template <typename T>
-    void addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName);
+    void addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName, int pathOffset);
     template <typename T>
     std::vector<DBRBase*> getFiles() {
         auto it = _typeMap.find(std::type_index(typeid(T)));
