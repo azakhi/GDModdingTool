@@ -23,6 +23,7 @@ struct Config
     std::vector<std::string> subDirs;
     std::vector<std::string> commands;
     bool isAddStasher = false;
+    bool isAddInventoryBagsAtStart = false;
 };
 
 void parseConfigFile(Config& config);
@@ -81,6 +82,17 @@ int main()
         }
     }
 
+    if (config.isAddInventoryBagsAtStart) {
+        Print << "Adding InventoryBagsAtStart ..\n";
+        if (std::filesystem::exists("OptionalMods\\InventoryBagsAtStart\\")) {
+            std::filesystem::copy("OptionalMods\\InventoryBagsAtStart\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+        }
+        else {
+            Print << "Error: Couldn't find InventoryBagsAtStart\n";
+            log_error << "InventoryBagsAtStart directory doesn't exist\n";
+        }
+    }
+
     std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
     Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
     Print << "Press Enter to exit ..\n";
@@ -135,6 +147,9 @@ void parseConfigFile(Config& config) {
 
         if (line == "$AddStasher") {
             config.isAddStasher = true;
+        }
+        else if (line == "$AddInventoryBagsAtStart") {
+            config.isAddInventoryBagsAtStart = true;
         }
         else if (line == "$RecordsDirectory") {
             std::getline(configFile, line);

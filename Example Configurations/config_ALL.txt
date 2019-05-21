@@ -28,6 +28,10 @@ interactive
 # Stasher by tt300: https://www.grimdawn.com/forums/showthread.php?t=57391
 #$AddStasher
 
+# Gives 5 inventory bags when you talk to Hangman Jarvis at the start.
+# WARNING: This OVERRIDES 'Waking to Misery' quest and requires building quests through Asset Manager > Archive > Build...
+#$AddInventoryBagsAtStart
+
 $Commands
 
 # Commands are run in order and multiple of same command is permitted. However, unless otherwise stated, a command OVERRIDES value set by a previous command
