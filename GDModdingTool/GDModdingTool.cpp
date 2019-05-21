@@ -22,6 +22,7 @@ struct Config
     std::string modDir = "";
     std::vector<std::string> subDirs;
     std::vector<std::string> commands;
+    bool isAddStasher = false;
 };
 
 void parseConfigFile(Config& config);
@@ -68,6 +69,18 @@ int main()
     }
 
     Print << fileManager.progressTotal() << " files saved\n";
+
+    if (config.isAddStasher) {
+        Print << "Adding Stasher ..\n";
+        if (std::filesystem::exists("OptionalMods\\Stasher\\")) {
+            std::filesystem::copy("OptionalMods\\Stasher\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+        }
+        else {
+            Print << "Error: Couldn't find Stasher\n";
+            log_error << "Stasher directory doesn't exist\n";
+        }
+    }
+
     std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
     Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
     Print << "Press Enter to exit ..\n";
@@ -81,11 +94,49 @@ void parseConfigFile(Config& config) {
     std::string line;
     while (std::getline(configFile, line)) {
         line = StringTrim(line);
+
+        if (line == "$SubDirectories") {
+            while (std::getline(configFile, line)) {
+                line = StringTrim(line);
+                if (line == "" || line[0] == '#') {
+                    line = "";
+                    continue;
+                }
+                else if (line[0] == '$') { // Let others catch
+                    break;
+                }
+                else {
+                    config.subDirs.push_back(line);
+                    line = "";
+                }
+            }
+        }
+
+        if (line == "$Commands") {
+            while (std::getline(configFile, line)) {
+                line = StringTrim(line);
+                if (line == "" || line[0] == '#') {
+                    line = "";
+                    continue;
+                }
+                else if (line[0] == '$') { // Let others catch
+                    break;
+                }
+                else {
+                    config.commands.push_back(line);
+                    line = "";
+                }
+            }
+        }
+
         if (line == "" || line[0] == '#') {
             continue;
         }
 
-        if (line == "$RecordsDirectory") {
+        if (line == "$AddStasher") {
+            config.isAddStasher = true;
+        }
+        else if (line == "$RecordsDirectory") {
             std::getline(configFile, line);
             line = StringTrim(line);
             if (line[line.size() - 1] != '\\') line.push_back('\\');
@@ -106,41 +157,7 @@ void parseConfigFile(Config& config) {
             config.modDir = line;
         }
         else {
-            if (line == "$SubDirectories") {
-                while (std::getline(configFile, line)) {
-                    line = StringTrim(line);
-                    if (line == "" || line[0] == '#') {
-                        line = "";
-                        continue;
-                    }
-                    else if (line[0] == '$') { // Let others catch
-                        break;
-                    }
-                    else {
-                        config.subDirs.push_back(line);
-                    }
-                }
-            }
-
-            if (line == "$Commands") {
-                while (std::getline(configFile, line)) {
-                    line = StringTrim(line);
-                    if (line == "" || line[0] == '#') {
-                        line = "";
-                        continue;
-                    }
-                    else if (line[0] == '$') { // Let others catch
-                        break;
-                    }
-                    else {
-                        config.commands.push_back(line);
-                        line = "";
-                    }
-                }
-            }
-
-            if (line != "")
-                log_warning << "Found meaningless line in config file: " << line << "\n";
+            log_warning << "Found meaningless line in config file: " << line << "\n";
         }
     }
 }

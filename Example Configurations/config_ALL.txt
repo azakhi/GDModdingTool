@@ -22,6 +22,12 @@ items
 proxies
 interactive
 
+## OPTIONAL ADDITIONAL MODS
+# Remove '#' at start to add these mods.
+
+# Stasher by tt300: https://www.grimdawn.com/forums/showthread.php?t=57391
+#$AddStasher
+
 $Commands
 
 # Commands are run in order and multiple of same command is permitted. However, unless otherwise stated, a command OVERRIDES value set by a previous command
