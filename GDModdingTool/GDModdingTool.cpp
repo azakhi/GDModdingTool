@@ -30,6 +30,14 @@ void parseConfigFile(Config& config);
 
 int main()
 {
+    if (!std::filesystem::exists("config.txt")) {
+        Print << "Couldn't find config.txt\n";
+        Print << "You can create one quickly by copying one of examples and renaming it.\n";
+        Print << "Press Enter to exit ..\n";
+        getchar();
+        return -1;
+    }
+
     Config config;
     parseConfigFile(config);
     FileManager fileManager(config.recordsDir, config.addRecordsDir, config.modDir, config.subDirs);
