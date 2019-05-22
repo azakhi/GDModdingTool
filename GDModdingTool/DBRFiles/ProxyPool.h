@@ -20,7 +20,11 @@ public:
         : DBRBase(fileManager, directoryEntry, templateName) {}
     void parse();
     void adjustSpawnAmount(float multiplier);
+    void adjustSpawnMin(float multiplier);
+    void adjustSpawnMax(float multiplier);
     void adjustChampionSpawnAmount(float multiplier);
+    void adjustChampionSpawnMin(float multiplier);
+    void adjustChampionSpawnMax(float multiplier);
     void adjustChampionChance(float multiplier);
     void adjustMonsterClassWeight(MonsterClass monsterClass, float multiplier);
     void increaseMonsterClassLimit(MonsterClass monsterClass, int limit);

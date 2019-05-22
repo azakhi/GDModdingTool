@@ -104,7 +104,11 @@ public:
     void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);
     void adjustChampionChance(float multiplier);
     void adjustChampionSpawnAmount(float multiplier);
+    void adjustChampionSpawnMin(float multiplier);
+    void adjustChampionSpawnMax(float multiplier);
     void adjustCommonSpawnAmount(float multiplier);
+    void adjustCommonSpawnMin(float multiplier);
+    void adjustCommonSpawnMax(float multiplier);
     void adjustExpRequirement(float multiplier);
     void setExpRequirementEquation(std::string value);
     void adjustFactionRepRequirements(float multiplier);

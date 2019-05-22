@@ -130,9 +130,19 @@ $Commands
 # Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
 #AdjustChampionSpawnAmount 2.5
 
+# Adjusts min/max amount of spawns from Champion pool. Same with AdjustChampionSpawnAmount if both used with same values
+# Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
+#AdjustChampionSpawnMin 2.5
+#AdjustChampionSpawnMax 2.5
+
 # Adjusts amount of spawns from normal pool.
 # Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
 #AdjustCommonSpawnAmount 1.5
+
+# Adjusts min/max amount of spawns from normal pool. Same with AdjustCommonSpawnAmount if both used with same values
+# Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
+#AdjustCommonSpawnMin 2.5
+#AdjustCommonSpawnMax 2.5
 
 # Adjusts amount of spawns. Same with calling AdjustChampionSpawnAmount and AdjustCommonSpawnAmount. This overrides previous calls to any of 3!
 # Parameter 1 (Float): Amount is multiplied by this

@@ -59,8 +59,16 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustChampionChance(ParamTypes::Float(params[0])); });
     _commandMap["AdjustChampionSpawnAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustChampionSpawnAmount(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustChampionSpawnMin"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustChampionSpawnMin(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustChampionSpawnMax"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustChampionSpawnMax(ParamTypes::Float(params[0])); });
     _commandMap["AdjustCommonSpawnAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustCommonSpawnAmount(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustCommonSpawnMin"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustCommonSpawnMin(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustCommonSpawnMax"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustCommonSpawnMax(ParamTypes::Float(params[0])); });
     _commandMap["AdjustExpRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustExpRequirement(ParamTypes::Float(params[0])); });
     _commandMap["AdjustFactionRepRequirements"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
@@ -295,6 +303,32 @@ void Customizer::adjustCommonSpawnAmount(float multiplier) {
     _tasks.push_back(f);
 }
 
+void Customizer::adjustCommonSpawnMin(float multiplier) {
+    _addFileForPreParse<ProxyPool>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
+        for (auto temp : temps) {
+            ProxyPool* pool = (ProxyPool*)temp;
+            pool->adjustSpawnMin(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustCommonSpawnMax(float multiplier) {
+    _addFileForPreParse<ProxyPool>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
+        for (auto temp : temps) {
+            ProxyPool* pool = (ProxyPool*)temp;
+            pool->adjustSpawnMax(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
 void Customizer::adjustChampionSpawnAmount(float multiplier) {
     _addFileForPreParse<ProxyPool>();
     FileManager* fmCopy = _fileManager;
@@ -303,6 +337,32 @@ void Customizer::adjustChampionSpawnAmount(float multiplier) {
         for (auto temp : temps) {
             ProxyPool* pool = (ProxyPool*)temp;
             pool->adjustChampionSpawnAmount(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustChampionSpawnMin(float multiplier) {
+    _addFileForPreParse<ProxyPool>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
+        for (auto temp : temps) {
+            ProxyPool* pool = (ProxyPool*)temp;
+            pool->adjustChampionSpawnMin(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustChampionSpawnMax(float multiplier) {
+    _addFileForPreParse<ProxyPool>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ProxyPool>();
+        for (auto temp : temps) {
+            ProxyPool* pool = (ProxyPool*)temp;
+            pool->adjustChampionSpawnMax(multiplier);
         }
     };
     _tasks.push_back(f);

@@ -109,13 +109,29 @@ void ProxyPool::parse() {
 }
 
 void ProxyPool::adjustSpawnAmount(float multiplier) {
-    if (_spawnMax != nullptr) _spawnMax->setModifiedValue(std::max(0.0f, _spawnMax->numericValue() * multiplier));
+    adjustSpawnMin(multiplier);
+    adjustSpawnMax(multiplier);
+}
+
+void ProxyPool::adjustSpawnMin(float multiplier) {
     if (_spawnMin != nullptr) _spawnMin->setModifiedValue(std::max(0.0f, _spawnMin->numericValue() * multiplier));
 }
 
+void ProxyPool::adjustSpawnMax(float multiplier) {
+    if (_spawnMax != nullptr) _spawnMax->setModifiedValue(std::max(0.0f, _spawnMax->numericValue() * multiplier));
+}
+
 void ProxyPool::adjustChampionSpawnAmount(float multiplier) {
-    if (_championMax != nullptr) _championMax->setModifiedValue(std::max(0.0f, _championMax->numericValue() * multiplier));
+    adjustChampionSpawnMin(multiplier);
+    adjustChampionSpawnMax(multiplier);
+}
+
+void ProxyPool::adjustChampionSpawnMin(float multiplier) {
     if (_championMin != nullptr) _championMin->setModifiedValue(std::max(0.0f, _championMin->numericValue() * multiplier));
+}
+
+void ProxyPool::adjustChampionSpawnMax(float multiplier) {
+    if (_championMax != nullptr) _championMax->setModifiedValue(std::max(0.0f, _championMax->numericValue() * multiplier));
 }
 
 void ProxyPool::adjustChampionChance(float multiplier) {
