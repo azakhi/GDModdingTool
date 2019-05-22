@@ -149,37 +149,55 @@ void parseConfigFile(Config& config) {
             }
         }
 
-        if (line == "" || line[0] == '#') {
-            continue;
-        }
-
         if (line == "$AddStasher") {
             config.isAddStasher = true;
+            line = "";
         }
-        else if (line == "$AddInventoryBagsAtStart") {
+
+        if (line == "$AddInventoryBagsAtStart") {
             config.isAddInventoryBagsAtStart = true;
+            line = "";
         }
-        else if (line == "$RecordsDirectory") {
-            std::getline(configFile, line);
-            line = StringTrim(line);
-            if (line[line.size() - 1] != '\\') line.push_back('\\');
-            config.recordsDir = line;
+
+        if (line == "$RecordsDirectory") {
+            line = "";
+            while ((line == "" || line[0] == '#') && std::getline(configFile, line)) {
+                line = StringTrim(line);
+            }
+
+            if (line != "" && line[0] != '#' && line[0] != '$') {
+                if (line[line.size() - 1] != '\\') line.push_back('\\');
+                config.recordsDir = line;
+            }
         }
-        else if (line == "$AdditionalRecordsDirectory") {
-            std::getline(configFile, line);
-            line = StringTrim(line);
-            if (line[line.size() - 1] != '\\') line.push_back('\\');
-            config.addRecordsDir = line;
+
+        if (line == "$AdditionalRecordsDirectory") {
+            line = "";
+            while ((line == "" || line[0] == '#') && std::getline(configFile, line)) {
+                line = StringTrim(line);
+            }
+
+            if (line != "" && line[0] != '#' && line[0] != '$') {
+                if (line[line.size() - 1] != '\\') line.push_back('\\');
+                config.addRecordsDir = line;
+            }
         }
-        else if (line == "$ModDirectory") {
-            std::getline(configFile, line);
-            line = StringTrim(line);
-            if (line[line.size() - 1] != '\\') line.push_back('\\');
-            if (line.substr(line.size() - 8, 8) == "records\\") line = line.substr(0, line.size() - 8);
-            if (line.substr(line.size() - 9, 9) == "database\\") line = line.substr(0, line.size() - 9);
-            config.modDir = line;
+        
+        if (line == "$ModDirectory") {
+            line = "";
+            while ((line == "" || line[0] == '#') && std::getline(configFile, line)) {
+                line = StringTrim(line);
+            }
+
+            if (line != "" && line[0] != '#' && line[0] != '$') {
+                if (line[line.size() - 1] != '\\') line.push_back('\\');
+                if (line.substr(line.size() - 8, 8) == "records\\") line = line.substr(0, line.size() - 8);
+                if (line.substr(line.size() - 9, 9) == "database\\") line = line.substr(0, line.size() - 9);
+                config.modDir = line;
+            }
         }
-        else {
+        
+        if (line != "" && line[0] != '#') {
             log_warning << "Found meaningless line in config file: " << line << "\n";
         }
     }
