@@ -37,11 +37,90 @@ $Commands
 # Commands are run in order and multiple of same command is permitted. However, unless otherwise stated, a command OVERRIDES value set by a previous command
 # Remove '#' at the start of the line to use a command
 
+## PLAYER
+
+# Adjusts amount of required XP per level.
+# Parameter 1 (Float): XP requirement is multiplied by this
+#AdjustExpRequirement 0.66
+
+# Sets the experience requirement equation to given value. Given example is default.
+# Parameter 1 (String): Equation. WARNING: Be sure that there are no spaces in equation
+#SetExperienceLevelEquation (((((playerLevel*playerLevel*playerLevel)^1.16)*32)+((playerLevel*playerLevel)*300))*0.1)+36
+
+# Sets maximum level player can reach.
+# Parameter 1 (Integer)
+#SetMaxLevel 120
+
+# Sets amount of attribute points gained per level.
+# Parameter 1 (Integer)
+#SetAttributePointsPerLevel 1
+
+# Changes amount of skill points gained per level.
+# Parameter 1 (Integer): Amount of change, added to original value. Can be negative.
+#ChangeSkillPointsPerLevelBy -1
+
+# Sets amount of skill points gained per level. Given example is default.
+# Parameter 1: List of amounts per level separated by ';'. Be sure that there is no space between values.
+#SetSkillPointPerLevel 3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;3;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;2;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1
+
+# Sets maximum amount of devotion points player can have.
+# Parameter 1 (Integer)
+#SetMaxDevotionPoints 75
+
+# Sets devotion point gained per shrine to given amount
+# Parameter 1 (Integer)
+#SetDevotionPointsPerShrine 2
+
+# Sets amount of attribute gained per point spent.
+# Parameter 1 (Integer): Amount of attribute gained per one attribute point (in default one attribute point gives 8)
+#SetPhysiqueIncrementPerAttribute 8
+#SetCunningIncrementPerAttribute 8
+#SetSpiritIncrementPerAttribute 8
+
+# Sets amount of life gained per attributes.
+# Parameter 1 (Integer): Amount of life gained per one attribute point equal of (see above options) attributes. Examples are default values.
+#SetLifeIncrementPerPhysique 20
+#SetLifeIncrementPerCunning 8
+#SetLifeIncrementPerSpirit 8
+
+# Adjusts amount of energy gained per spirit.
+# Parameter 1 (Integer): Amount of energy gained per 8 spirit is set to this. Example is the default value
+#SetEnergyIncrementPerSpirit 16
+
+# Adjusts amount of required reputation for factions. This affects all levels (both negative and positive levels).
+# Parameter 1 (Float): Requirement is multiplied by this
+#AdjustFactionRepRequirements 0.75
+
+# Changes the limit of stack for given item type. Can be used multiple times for different types.
+# Parameter 1 (Integer): New stack limit
+# Parameter 2: Item type. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
+#SetItemStackLimit 300 Potion
+
+## LOOT
+
+# Adjusts amount of gold per loot
+# Parameter 1 (Float): Gold amount is multiplied by this
+#AdjustGoldDrop 3
+
+# Adjusts amount of loot from given source
+# Parameter 1 (Float): Amount is multiplied by this
+# Parameter 2: Source of loot. Valid values: Chest, Enemy, All
+#AdjustLootAmount 3.33333 Chest
+
+# Adjusts amount of specific loot combination. Can be used multiple times to cover different combinations.
+# Parameter 1 (Float): Amount is multiplied by this
+# Parameter 2: List of item types. Separate values with ','. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
+# Parameter 3: List of item classes (rarities). Separate values with ','. Valid values: Common, Magical, Rare, Epic, Legendary, Quest
+# Parameter 4 (Boolean): Should types and classes be combined with AND or OR? AND makes it apply to loots satisfying both while OR requires only one to satisfy. Use 'True' for AND and 'False' for OR.
+#AdjustSpecificLootAmount 1.333 Component,Amulet Quest,Rare True
+
 # Adjusts weight of speficied prefix-suffix combination. Can be used multiple times to cover different combinations.
 # Parameter 1 (Float): Weights of combinations multiplied by this
 # Parameter 2: Type of prefix. Valid values: NoAffix, NormalAffix, RareAffix
 # Parameter 3: Type of suffix. Valid values: NoAffix, NormalAffix, RareAffix
 #AdjustAffixWeight 5 RareAffix RareAffix
+
+## MONSTERS
 
 # Adjusts chance of spawning from Champion pool (not necessarily champion! Could even be normal or hero).
 # Parameter 1 (Float): Chance multiplied by this (Chance is percentage and limited to 0-100)
@@ -55,42 +134,14 @@ $Commands
 # Parameter 1 (Float): Amount is multiplied by this (Remember 0 * x is still 0 (unless x = infinity))
 #AdjustCommonSpawnAmount 1.5
 
-# Adjusts amount of required XP per level.
-# Parameter 1 (Float): XP requirement is multiplied by this
-#AdjustExpRequirement 0.66
-
-# Adjusts amount of required reputation for factions. This affects all levels (both negative and positive levels).
-# Parameter 1 (Float): Requirement is multiplied by this
-#AdjustFactionRepRequirements 0.75
-
-# Adjusts amount of gold per loot
-# Parameter 1 (Float): Gold amount is multiplied by this
-#AdjustGoldDrop 3
-
-# Adjusts amount of life gained per level/stats. High values of this will make game far too easy and ruin your enjoyment. Use at your own discretion.
-# Parameter 1 (Float): Amount of life gained is multiplied by this and then rounded to closest smaller integer.
-#AdjustLifeIncrement 1.05
-
-# Adjusts amount of loot from given source
+# Adjusts amount of spawns. Same with calling AdjustChampionSpawnAmount and AdjustCommonSpawnAmount. This overrides previous calls to any of 3!
 # Parameter 1 (Float): Amount is multiplied by this
-# Parameter 2: Source of loot. Valid values: Chest, Enemy, All
-#AdjustLootAmount 3.33333 Chest
+#AdjustSpawnAmount 3.33
 
 # Adjusts weight of given monster class. This changes probability of a class of monsters to be chosen from a pool.
 # Parameter 1 (Float): Weight of class is multiplied by this
 # Parameter 2: Monster class. Valid values: Common, Champion, Hero, Quest, Boss
 #AdjustMonsterClassWeight 5.789 Hero
-
-# Adjusts amount of spawns. Same with calling AdjustChampionSpawnAmount and AdjustCommonSpawnAmount. This overrides previous calls to any of 3!
-# Parameter 1 (Float): Amount is multiplied by this
-#AdjustSpawnAmount 3.33
-
-# Adjusts amount of specific loot combination. Can be used multiple times to cover different combinations.
-# Parameter 1 (Float): Amount is multiplied by this
-# Parameter 2: List of item types. Separate values with ','. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
-# Parameter 3: List of item classes (rarities). Separate values with ','. Valid values: Common, Magical, Rare, Epic, Legendary, Quest
-# Parameter 4 (Boolean): Should types and classes be combined with AND or OR? AND makes it apply to loots satisfying both while OR requires only one to satisfy. Use 'True' for AND and 'False' for OR.
-#AdjustSpecificLootAmount 1.333 Component,Amulet Quest,Rare True
 
 # Increases limit of given monster class by given amount. This is an upper limit. Most of heroes are limited to 1. Increasing allows more heroes (combined with AdjustChampionChance and AdjustChampionSpawnAmount). However you will see same heroes multiple times in a monster group. Note: Monster pool files with 'ignoreGameBalance' set to 1 is not affected by any changes. Those files are generally special files like quest bosses or aetherial crystals and changing them likely to cause unexpected/unwanted bugs and results.
 # Parameter 1 (Integer): Limit is increased by this
@@ -99,23 +150,6 @@ $Commands
 
 # Removes monster level limits to allow monsters to scale to player level. This affects almost every area in every difficulty!
 #RemoveDifficultyLimits
-
-# Sets devotion point gained per shrine to given amount
-# Parameter 1 (Integer)
-#SetDevotionPointsPerShrine 2
-
-# Changes the limit of stack for given item type. Can be used multiple times for different types.
-# Parameter 1 (Integer): New stack limit
-# Parameter 2: Item type. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
-#SetItemStackLimit 300 Potion
-
-# Sets maximum amount of devotion points player can have.
-# Parameter 1 (Integer)
-#SetMaxDevotionPoints 75
-
-# Sets maximum level player can reach.
-# Parameter 1 (Integer)
-#SetMaxLevel 120
 
 # Changes maximum player level that a player will encounter given class of monster
 # Parameter 1 (Integer): Max player level

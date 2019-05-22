@@ -67,8 +67,6 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustFactionRepRequirements(ParamTypes::Float(params[0])); });
     _commandMap["AdjustGoldDrop"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustGoldDrop(ParamTypes::Float(params[0])); });
-    _commandMap["AdjustLifeIncrement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
-        [this](std::vector<std::string> params) { adjustLifeIncrement(ParamTypes::Float(params[0])); });
     _commandMap["AdjustLootAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::LootSourceEnumValidator }),
         [this](std::vector<std::string> params) { adjustLootAmount(ParamTypes::Float(params[0]), ParamTypes::LootSourceEnum(params[1])); });
     _commandMap["AdjustMonsterClassWeight"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::MonsterClassEnumValidator }),
@@ -98,6 +96,28 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { setMonsterClassMaxPlayerLevel(ParamTypes::Integer(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
     _commandMap["SetMonsterClassMinPlayerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::MonsterClassEnumValidator }),
         [this](std::vector<std::string> params) { setMonsterClassMinPlayerLevel(ParamTypes::Integer(params[0]), ParamTypes::MonsterClassEnum(params[1])); });
+    _commandMap["SetAttributePointsPerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setCharModPoints(ParamTypes::Integer(params[0])); });
+    _commandMap["SetCunningIncrementPerAttribute"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setDexInc(ParamTypes::Integer(params[0])); });
+    _commandMap["SetPhysiqueIncrementPerAttribute"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setStrInc(ParamTypes::Integer(params[0])); });
+    _commandMap["SetSpiritIncrementPerAttribute"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setIntInc(ParamTypes::Integer(params[0])); });
+    _commandMap["SetLifeIncrementPerPhysique"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setLifeInc(ParamTypes::Integer(params[0])); });
+    _commandMap["SetLifeIncrementPerCunning"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setLifeIncDex(ParamTypes::Integer(params[0])); });
+    _commandMap["SetLifeIncrementPerSpirit"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setLifeIncInt(ParamTypes::Integer(params[0])); });
+    _commandMap["SetEnergyIncrementPerSpirit"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setManaInc(ParamTypes::Integer(params[0])); });
+    _commandMap["ChangeSkillPointsPerLevelBy"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { adjustSkillModPointPerLevel(ParamTypes::Integer(params[0])); });
+    _commandMap["SetSkillPointPerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
+        [this](std::vector<std::string> params) { setSkillModPointPerLevel(params[0]); });
+    _commandMap["SetExperienceLevelEquation"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
+        [this](std::vector<std::string> params) { setExpRequirementEquation(params[0]); });
 
     _parseCommands(commands);
 }
@@ -108,7 +128,9 @@ void Customizer::_parseCommands(std::vector<std::string> commands) {
         std::vector<std::string> args;
         std::string item = "";
         while (std::getline(ss, item, ' ')) {
-            args.push_back(item);
+            if (item != "") {
+                args.push_back(item);
+            }
         }
 
         if (args.size() > 0) {
@@ -162,30 +184,11 @@ void Customizer::runTasks() {
     }
 }
 
-void Customizer::adjustLifeIncrement(float multiplier) {
-    _addFileForPreParse("experiencelevelcontrol.tpl");
-    FileManager* fmCopy = _fileManager;
-    std::function<void()> f = [fmCopy, multiplier]() {
-        fmCopy->modifyField("experiencelevelcontrol.tpl", "lifeIncrement", [multiplier](std::string str) -> std::string {
-            float value = std::stof(str);
-            return std::to_string((int)(value * multiplier));
-        });
-    };
-    _tasks.push_back(f);
-}
-
 void Customizer::setMaxDevotionPoints(int point) {
-    _addFileForPreParse("experiencelevelcontrol.tpl");
+    _addFileForPreParse<ExperienceLevelControl>();
     _addFileForPreParse("gameengine.tpl");
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, point]() {
-        std::vector<DBRBase*> playerFile = fmCopy->getFiles("experiencelevelcontrol.tpl");
-        for (auto temp : playerFile) {
-            temp->modifyField("maxDevotionPoints", [point](std::string str) -> std::string {
-                return std::to_string(point);
-            });
-        }
-
         std::vector<DBRBase*> gameEngineFile = fmCopy->getFiles("gameengine.tpl");
         for (auto temp : gameEngineFile) {
             temp->modifyField("playerDevotionCap", [point](std::string str) -> std::string {
@@ -194,15 +197,26 @@ void Customizer::setMaxDevotionPoints(int point) {
         }
     };
     _tasks.push_back(f);
+
+    std::function<void()> f2 = [fmCopy, point]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setMaxDevPoints(point);
+        }
+    };
+    _tasks.push_back(f2);
 }
 
 void Customizer::setMaxLevel(int level) {
-    _addFileForPreParse("experiencelevelcontrol.tpl");
+    _addFileForPreParse<ExperienceLevelControl>();
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, level]() {
-        fmCopy->modifyField("experiencelevelcontrol.tpl", "maxPlayerLevel", [level](std::string str) -> std::string {
-            return std::to_string(level);
-        });
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setMaxPlayerLevel(level);
+        }
     };
     _tasks.push_back(f);
 }
@@ -232,14 +246,27 @@ void Customizer::adjustGoldDrop(float multiplier) {
 }
 
 void Customizer::adjustExpRequirement(float multiplier) {
-    _addFileForPreParse("experiencelevelcontrol.tpl");
+    _addFileForPreParse<ExperienceLevelControl>();
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier]() {
-        fmCopy->modifyField("experiencelevelcontrol.tpl", "experienceLevelEquation", [multiplier](std::string str) -> std::string {
-            std::ostringstream os;
-            os << std::fixed << std::setprecision(1) << "(" << str << ") * " << multiplier;
-            return os.str();
-        });
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->adjustExpRequirement(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setExpRequirementEquation(std::string value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setExpRequirementEquation(value);
+        }
     };
     _tasks.push_back(f);
 }
@@ -516,6 +543,146 @@ void Customizer::adjustAffixWeight(float multiplier, AffixType prefixType, Affix
         for (auto temp : temps) {
             DynWeightAffixTable* dynTable = (DynWeightAffixTable*)temp;
             dynTable->adjustAffixWeight(multiplier, prefixType, suffixType);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setCharModPoints(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setCharModPoints(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setDexInc(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setDexInc(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setStrInc(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setStrInc(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setIntInc(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setIntInc(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setLifeInc(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setLifeInc(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setLifeIncDex(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setLifeIncDex(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setLifeIncInt(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setLifeIncInt(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setManaInc(int value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setManaInc(value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustSkillModPointPerLevel(int change) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, change]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->adjustSkillModPointPerLevel(change);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setSkillModPointPerLevel(std::string value) {
+    _addFileForPreParse<ExperienceLevelControl>();
+
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceLevelControl>();
+        for (auto temp : temps) {
+            ExperienceLevelControl* exp = (ExperienceLevelControl*)temp;
+            exp->setSkillModPointPerLevel(value, ';');
         }
     };
     _tasks.push_back(f);

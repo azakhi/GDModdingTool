@@ -172,6 +172,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Customizer.cpp" />
+    <ClCompile Include="DBRFiles\ExperienceLevelControl.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="GDModdingTool.cpp" />
     <ClCompile Include="DBRFiles\DynWeightAffixTable.cpp" />
@@ -187,6 +188,7 @@
   <ItemGroup>
     <ClInclude Include="ConsolePrinter.h" />
     <ClInclude Include="Customizer.h" />
+    <ClInclude Include="DBRFiles\ExperienceLevelControl.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="DBRFiles\DynWeightAffixTable.h" />
     <ClInclude Include="DBRFiles\Field.h" />

@@ -147,10 +147,14 @@ public:
     }
 
     void setModifiedValue(std::string value) {
+        setModifiedValue(value, ';');
+    }
+
+    void setModifiedValue(std::string value, char separator) {
         _values.clear();
         std::stringstream ss(value);
         std::string item = "";
-        while (std::getline(ss, item, ';')) {
+        while (std::getline(ss, item, separator)) {
             F v(name(), item);
             _values.push_back(v);
         }

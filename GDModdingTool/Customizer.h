@@ -14,6 +14,7 @@
 #include "DBRFiles/ItemBase.h"
 #include "DBRFiles/DynWeightAffixTable.h"
 #include "DBRFiles/LevelTable.h"
+#include "DBRFiles/ExperienceLevelControl.h"
 
 class ParamTypes
 {
@@ -105,9 +106,9 @@ public:
     void adjustChampionSpawnAmount(float multiplier);
     void adjustCommonSpawnAmount(float multiplier);
     void adjustExpRequirement(float multiplier);
+    void setExpRequirementEquation(std::string value);
     void adjustFactionRepRequirements(float multiplier);
     void adjustGoldDrop(float multiplier);
-    void adjustLifeIncrement(float multiplier);
     void adjustLootAmount(float multiplier, LootSource source = LootSource::All);
     void adjustMonsterClassWeight(float multiplier, MonsterClass monsterClass);
     void adjustSpawnAmount(float multiplier);
@@ -120,6 +121,16 @@ public:
     void setMaxLevel(int level);
     void setMonsterClassMaxPlayerLevel(int level, MonsterClass monsterClass);
     void setMonsterClassMinPlayerLevel(int level, MonsterClass monsterClass);
+    void setCharModPoints(int value);
+    void setDexInc(int value);
+    void setStrInc(int value);
+    void setIntInc(int value);
+    void setLifeInc(int value);
+    void setLifeIncDex(int value);
+    void setLifeIncInt(int value);
+    void setManaInc(int value);
+    void adjustSkillModPointPerLevel(int change);
+    void setSkillModPointPerLevel(std::string value);
 
 private:
     void _parseCommands(std::vector<std::string> commands);

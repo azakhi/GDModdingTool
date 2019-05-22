@@ -18,6 +18,7 @@
 #include "DBRFiles/ItemBase.h"
 #include "DBRFiles/DynWeightAffixTable.h"
 #include "DBRFiles/LevelTable.h"
+#include "DBRFiles/ExperienceLevelControl.h"
 
 #include <iostream>
 
@@ -96,6 +97,7 @@ void FileManager::_scanFiles() {
     templateMap["proxypool.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ProxyPool>(de, s, po); };
     templateMap["lootitemtable_dynweighted_dynaffix.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<DynWeightAffixTable>(de, s, po); };
     templateMap["leveltable.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<LevelTable>(de, s, po); };
+    templateMap["experiencelevelcontrol.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ExperienceLevelControl>(de, s, po); };
     // Item Templates
     templateMap["itemfactionwarrant.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
     templateMap["jewelry_amulet.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
