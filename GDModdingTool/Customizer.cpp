@@ -12,13 +12,13 @@ const std::function<AffixType(std::string)> ParamTypes::AffixTypeEnum = [](std::
     if (s == "NoAffix") return AffixType::NoAffix;
     else if (s == "NormalAffix") return AffixType::NormalAffix;
     else if (s == "RareAffix") return AffixType::RareAffix;
-    else throw "Invalid Affix";
+    else throw std::runtime_error("Invalid Affix");
 };
 const std::function<LootSource(std::string)> ParamTypes::LootSourceEnum = [](std::string s) {
     if (s == "Chest") return LootSource::Chest;
     else if (s == "Enemy") return LootSource::Enemy;
     else if (s == "All") return LootSource::All;
-    else throw "Invalid Affix";
+    else throw std::runtime_error("Invalid Affix");
 };
 const std::function<MonsterClass(std::string)> ParamTypes::MonsterClassEnum = [](std::string s) { return DBRBase::MonsterClassOf(s); };
 const std::function<ItemType(std::string)> ParamTypes::ItemTypeEnum = [](std::string s) { return DBRBase::ItemTypeOf(s); };
@@ -50,7 +50,7 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
     _fileManager = fileManager;
     _remainingWorkStart = 0;
     _threadProgress.resize(THREAD_COUNT, 0);
-    _isThreadDone.resize(THREAD_COUNT, false);
+    _threadStatus.resize(THREAD_COUNT, ThreadStatus::NotRunning);
     _progressTotal = 0;
 
     _commandMap["AdjustAffixWeight"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::AffixTypeEnumValidator, ParamTypes::AffixTypeEnumValidator }),
@@ -181,6 +181,7 @@ void Customizer::preParse() {
     _progressTotal = (int)preParseFiles.size();
     _remainingWorkStart = 0;
     for (size_t i = 0; i < _threadProgress.size(); i++) {
+        _threadStatus[i] = ThreadStatus::Running;
         auto t = std::thread(&Customizer::_preParse, this, (int)i, preParseFiles);
         t.detach();
     }
@@ -749,20 +750,32 @@ void Customizer::setSkillModPointPerLevel(std::string value) {
 }
 
 void Customizer::_preParse(int tnum, std::vector<DBRBase*> temps) {
-    _isThreadDone[tnum] = false;
-    _threadProgress[tnum] = 0;
+    try {
+        _threadStatus[tnum] = ThreadStatus::Running;
+        _threadProgress[tnum] = 0;
 
-    int start, end;
-    _getWorkPart(start, end);
-    while (start < end) {
-        for (int i = start; i < end; i++) {
-            temps[i]->parse();
-            _threadProgress[tnum]++;
-        }
+        int start, end;
         _getWorkPart(start, end);
-    }
+        while (start < end) {
+            for (int i = start; i < end; i++) {
+                temps[i]->parse();
+                _threadProgress[tnum]++;
+            }
+            _getWorkPart(start, end);
+        }
 
-    _isThreadDone[tnum] = true;
+        _threadStatus[tnum] = ThreadStatus::Completed;
+    }
+    catch (const std::exception& e) {
+        log_warning << "Error while pre-parsing in thread " << tnum << "\n";
+        log_error << e.what() << "\n";
+        _threadStatus[tnum] = ThreadStatus::ThrownError;
+    }
+    catch (const char* errorMessage) {
+        log_warning << "Error while pre-parsing in thread " << tnum << "\n";
+        log_error << errorMessage << "\n";
+        _threadStatus[tnum] = ThreadStatus::ThrownError;
+    }
 }
 
 void Customizer::_preParseWOThreads() {

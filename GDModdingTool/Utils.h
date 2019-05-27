@@ -1,7 +1,18 @@
 #pragma once
 #include <string>
 
-std::string StringTrim(const std::string& str, const std::string& whitespace = " \t")
+#include "Logger.h"
+
+#ifndef log_info
+#define log_info (*Logger::logger())
+#define log_warning (*Logger::logger())<<"WARNING: "
+#define log_debug (*Logger::logger())<<"DEBUG: "
+#define log_error (*Logger::logger())<<"ERROR: "
+#endif // !log_info
+
+enum ThreadStatus { NotRunning, Running, Completed, ThrownError };
+
+inline std::string StringTrim(const std::string& str, const std::string& whitespace = " \t")
 {
     const auto strBegin = str.find_first_not_of(whitespace);
     if (strBegin == std::string::npos)

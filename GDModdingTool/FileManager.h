@@ -9,19 +9,21 @@
 #include <typeindex>
 #include <mutex>
 
+#include "Utils.h"
+
 class DBRBase;
 
 struct DBRData
 {
     std::vector<DBRBase*> dbrs;
-    std::unordered_map<std::string, int> fieldMap;
+    std::unordered_map<std::string, size_t> fieldMap;
     std::mutex lock;
 };
 
 class FileManager {
     const int THREAD_COUNT = 16;
     std::vector<int> _threadProgress;
-    std::vector<bool> _isThreadDone;
+    std::vector<ThreadStatus> _threadStatus;
     int _progressTotal;
 
     std::string _recordsDirectory;
@@ -35,7 +37,7 @@ class FileManager {
     std::unordered_map<std::string, int> _factionMap;
     void _scanFiles();
     void _save(int tnum, int size, std::vector<std::pair<DBRBase*, std::string>> temps);
-    int _addField(DBRData* data, std::string field);
+    size_t _addField(DBRData* data, std::string field);
     std::string _parseTemplateName(std::filesystem::directory_entry entry);
 
 public:
@@ -48,12 +50,18 @@ public:
         return total;
     }
 
-    const bool isWorkersDone() const {
-        for (const auto itd : _isThreadDone) {
-            if (!itd) return false;
+    const ThreadStatus threadStatus() const {
+        ThreadStatus status = ThreadStatus::NotRunning;
+        for (const auto s : _threadStatus) {
+            if (s == ThreadStatus::ThrownError) {
+                return ThreadStatus::ThrownError;
+            }
+            else if (s == ThreadStatus::Running || (s == ThreadStatus::Completed && status == ThreadStatus::NotRunning)) {
+                status = s;
+            }
         }
 
-        return true;
+        return status;
     }
 
     const int progressTotal() const { return _progressTotal; }
@@ -76,10 +84,10 @@ public:
         return index;
     }
 
-    const int getFieldIndex(std::string templateName, std::string fieldName) {
+    const size_t getFieldIndex(std::string templateName, std::string fieldName) {
         auto it = _templateMap.find(templateName);
         if (it == _templateMap.end()) {
-            throw "Template does not exist";
+            throw std::runtime_error("Template does not exist");
         }
 
         // TODO: Check if locking frequently is a performance problem

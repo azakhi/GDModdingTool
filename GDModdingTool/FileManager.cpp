@@ -23,9 +23,21 @@
 #include <iostream>
 
 FileManager::FileManager(std::string recordsDirectory, std::string addRecordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories) {
+    if (!std::filesystem::exists(recordsDirectory)) {
+        throw std::runtime_error("Error: Couldn't find records directory: " + recordsDirectory);
+    }
+
+    if (!std::filesystem::exists(modDirectory)) {
+        throw std::runtime_error("Error: Couldn't find mod directory: " + modDirectory);
+    }
+
+    if (addRecordsDirectory != "" && !std::filesystem::exists(addRecordsDirectory)) {
+        throw std::runtime_error("Error: Couldn't find additional records directory: " + addRecordsDirectory);
+    }
+
     _progressTotal = 0;
     _threadProgress.resize(THREAD_COUNT, 0);
-    _isThreadDone.resize(THREAD_COUNT, false);
+    _threadStatus.resize(THREAD_COUNT, ThreadStatus::NotRunning);
     _recordsDirectory = recordsDirectory;
     _addRecordsDirectory = addRecordsDirectory;
     _modDirectory = modDirectory;
@@ -86,88 +98,99 @@ std::vector<DBRBase*> FileManager::getFiles(std::vector<std::type_index> typeInd
 }
 
 void FileManager::_scanFiles() {
-    _threadProgress[0] = 0;
-    std::fill(_isThreadDone.begin()+1, _isThreadDone.end(), true);
-    _isThreadDone[0] = false;
+    try {
+        _threadProgress[0] = 0;
+        _threadStatus[0] = ThreadStatus::Running;
 
-    std::unordered_map<std::string, std::function<void(std::filesystem::directory_entry, std::string, int)>> templateMap;
-    templateMap["fixeditemloot.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<FixedItemLoot>(de, s, po); };
-    templateMap["monster.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<Monster>(de, s, po); };
-    templateMap["lootmastertable.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<LootMasterTable>(de, s, po); };
-    templateMap["proxypool.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ProxyPool>(de, s, po); };
-    templateMap["lootitemtable_dynweighted_dynaffix.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<DynWeightAffixTable>(de, s, po); };
-    templateMap["leveltable.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<LevelTable>(de, s, po); };
-    templateMap["experiencelevelcontrol.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ExperienceLevelControl>(de, s, po); };
-    // Item Templates
-    templateMap["itemfactionwarrant.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["jewelry_amulet.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemrandomsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemartifactformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemattributereset.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemrelic.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemdifficultyunlock.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemdevotionreset.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemusableskill.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemnote.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["jewelry_medal.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["oneshot_potionhealth.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["oneshot_potionmana.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["oneshot_food.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["oneshot_scroll.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["questitem.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["itemartifact.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["jewelry_ring.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weaponarmor_shield.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_waist.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_vestment.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_shoulders.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_legs.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_hands.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_feet.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_clothing.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_chest.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["armor_head.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_sword2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_sword.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_staff.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_spear.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_scepter.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_ranged2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_ranged1h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_offhand.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_mace2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_mace.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_dagger.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_axe2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
-    templateMap["weapon_axe.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        std::unordered_map<std::string, std::function<void(std::filesystem::directory_entry, std::string, int)>> templateMap;
+        templateMap["fixeditemloot.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<FixedItemLoot>(de, s, po); };
+        templateMap["monster.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<Monster>(de, s, po); };
+        templateMap["lootmastertable.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<LootMasterTable>(de, s, po); };
+        templateMap["proxypool.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ProxyPool>(de, s, po); };
+        templateMap["lootitemtable_dynweighted_dynaffix.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<DynWeightAffixTable>(de, s, po); };
+        templateMap["leveltable.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<LevelTable>(de, s, po); };
+        templateMap["experiencelevelcontrol.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ExperienceLevelControl>(de, s, po); };
+        // Item Templates
+        templateMap["itemfactionwarrant.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["jewelry_amulet.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemrandomsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemartifactformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemattributereset.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemsetformula.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemrelic.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemdifficultyunlock.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemdevotionreset.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemusableskill.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemnote.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["jewelry_medal.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["oneshot_potionhealth.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["oneshot_potionmana.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["oneshot_food.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["oneshot_scroll.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["questitem.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemartifact.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["jewelry_ring.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weaponarmor_shield.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_waist.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_vestment.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_shoulders.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_legs.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_hands.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_feet.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_clothing.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_chest.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["armor_head.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_sword2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_sword.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_staff.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_spear.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_scepter.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_ranged2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_ranged1h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_offhand.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_mace2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_mace.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_dagger.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_axe2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["weapon_axe.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
 
-    for (auto dir : _subDirectories) {
-        // Read additional first to prevent creation of overriden files
-        if (_addRecordsDirectory != "") {
-            for (const auto & entry : std::filesystem::recursive_directory_iterator(_addRecordsDirectory + dir)) {
+        for (auto dir : _subDirectories) {
+            // Read additional first to prevent creation of overriden files
+            if (_addRecordsDirectory != "") {
+                for (const auto & entry : std::filesystem::recursive_directory_iterator(_addRecordsDirectory + dir)) {
+                    _threadProgress[0]++;
+                    std::string templateName = _parseTemplateName(entry);
+                    if (templateName != "") {
+                        auto tempIt = templateMap.find(templateName);
+                        if (tempIt != templateMap.end()) tempIt->second(entry, templateName, _addRecordsDirectory.length());
+                        else addTemplate<DBRBase>(entry, templateName, _addRecordsDirectory.length());
+                    }
+                }
+            }
+
+            for (const auto & entry : std::filesystem::recursive_directory_iterator(_recordsDirectory + dir)) {
                 _threadProgress[0]++;
                 std::string templateName = _parseTemplateName(entry);
                 if (templateName != "") {
                     auto tempIt = templateMap.find(templateName);
-                    if (tempIt != templateMap.end()) tempIt->second(entry, templateName, _addRecordsDirectory.length());
-                    else addTemplate<DBRBase>(entry, templateName, _addRecordsDirectory.length());
+                    if (tempIt != templateMap.end()) tempIt->second(entry, templateName, _recordsDirectory.length());
+                    else addTemplate<DBRBase>(entry, templateName, _recordsDirectory.length());
                 }
             }
         }
 
-        for (const auto & entry : std::filesystem::recursive_directory_iterator(_recordsDirectory + dir)) {
-            _threadProgress[0]++;
-            std::string templateName = _parseTemplateName(entry);
-            if (templateName != "") {
-                auto tempIt = templateMap.find(templateName);
-                if (tempIt != templateMap.end()) tempIt->second(entry, templateName, _recordsDirectory.length());
-                else addTemplate<DBRBase>(entry, templateName, _recordsDirectory.length());
-            }
-        }
+        _threadStatus[0] = ThreadStatus::Completed;
     }
-
-    _isThreadDone[0] = true;
+    catch (const std::exception& e) {
+        log_warning << "Error while scanning files\n";
+        log_error << e.what() << "\n";
+        _threadStatus[0] = ThreadStatus::ThrownError;
+    }
+    catch (const char* errorMessage) {
+        log_warning << "Error while scanning files\n";
+        log_error << errorMessage << "\n";
+        _threadStatus[0] = ThreadStatus::ThrownError;
+    }
 }
 
 void FileManager::modifyField(std::string templateName, std::string fieldName, std::function<std::string(std::string)> modifier) {
@@ -193,7 +216,7 @@ void FileManager::modifyField(std::string templateName, std::vector<std::string>
 template <typename T>
 void FileManager::addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName, int pathOffset) {
     if (!std::is_base_of<DBRBase, T>::value) {
-        throw "Unknow type T in File Manager";
+        throw std::runtime_error("Unknow type T in File Manager");
     }
 
     std::string pathAsValue = "records\\" + directoryEntry.path().string().substr(pathOffset);
@@ -222,49 +245,62 @@ void FileManager::save() {
     _progressTotal = (int)dirtyFiles.size();
     int size = (int)(dirtyFiles.size() / _threadProgress.size() + 1);
     for (size_t i = 0; i < _threadProgress.size(); i++) {
+        _threadStatus[i] = ThreadStatus::Running;
         auto t = std::thread(&FileManager::_save, this, (int)i, size, dirtyFiles);
         t.detach();
     }
 }
 
 void FileManager::_save(int tnum, int size, std::vector<std::pair<DBRBase*, std::string>> temps) {
-    int end = (tnum + 1) * size;
-    if ((int)(temps.size()) < end) {
-        end = (int)(temps.size());
-    }
-
-    _isThreadDone[tnum] = false;
-    _threadProgress[tnum] = 0;
-    for (int i = (tnum * size); i < end; i++) {
-        auto temp = temps[i].first;
-        if (temp->isDirty()) {
-            std::string filePath = _modDirectory + "database\\" + temps[i].second;
-            std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
-            std::ofstream dbrFile;
-            dbrFile.open(filePath);
-            if (dbrFile.is_open()) {
-                dbrFile << temp->text();
-                dbrFile.flush();
-                dbrFile.close();
-            }
-            else {
-                std::cout << "File is not open\n" << GetLastError() << "\n";
-            }
-
-            _threadProgress[tnum]++;
+    try {
+        int end = (tnum + 1) * size;
+        if ((int)(temps.size()) < end) {
+            end = (int)(temps.size());
         }
+
+        _threadStatus[tnum] = ThreadStatus::Running;
+        _threadProgress[tnum] = 0;
+        for (int i = (tnum * size); i < end; i++) {
+            auto temp = temps[i].first;
+            if (temp->isDirty()) {
+                std::string filePath = _modDirectory + "database\\" + temps[i].second;
+                std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
+                std::ofstream dbrFile;
+                dbrFile.open(filePath);
+                if (dbrFile.is_open()) {
+                    dbrFile << temp->text();
+                    dbrFile.flush();
+                    dbrFile.close();
+                }
+                else {
+                    std::cout << "File is not open\n" << GetLastError() << "\n";
+                }
+
+                _threadProgress[tnum]++;
+            }
+        }
+        _threadStatus[tnum] = ThreadStatus::Completed;
     }
-    _isThreadDone[tnum] = true;
+    catch (const std::exception& e) {
+        log_warning << "Error while saving in thread " << tnum << "\n";
+        log_error << e.what() << "\n";
+        _threadStatus[tnum] = ThreadStatus::ThrownError;
+    }
+    catch (const char* errorMessage) {
+        log_warning << "Error while saving in thread " << tnum << "\n";
+        log_error << errorMessage << "\n";
+        _threadStatus[tnum] = ThreadStatus::ThrownError;
+    }
 }
 
-int FileManager::_addField(DBRData* data, std::string field) {
+size_t FileManager::_addField(DBRData* data, std::string field) {
     std::lock_guard<std::mutex> lock(data->lock);
     auto it = data->fieldMap.find(field);
     if (it != data->fieldMap.end()) {
         return it->second;
     }
 
-    int index = (int)data->fieldMap.size();
+    size_t index = data->fieldMap.size();
     data->fieldMap[field] = index;
     return index;
 }

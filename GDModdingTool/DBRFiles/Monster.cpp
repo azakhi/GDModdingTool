@@ -1,7 +1,5 @@
 #include "Monster.h"
 
-#include <regex>
-
 void Monster::parse() {
     if (_isParsed) {
         return;

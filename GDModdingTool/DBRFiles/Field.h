@@ -6,15 +6,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "../Logger.h"
-
-#ifndef log_info
-#define log_info (*Logger::logger())
-#define log_warning (*Logger::logger())<<"WARNING: "
-#define log_debug (*Logger::logger())<<"DEBUG: "
-#define log_error (*Logger::logger())<<"ERROR: "
-#endif // !log_info
-
 
 class Field {
     std::string _value;
@@ -71,6 +62,10 @@ public:
     void setModifiedValue(float value) {
         _modifiedValue = std::min(_max, std::max(_min, value));
     }
+
+    void setModifiedValue(int value) {
+        setModifiedValue((float)value);
+    }
 };
 
 template <typename T>
@@ -79,7 +74,7 @@ class NumericField : public NumericFieldBase {
 public:
     NumericField(std::string name, std::string value, bool neverModified = false, float min = 0.0f, float max = FLT_MAX)
         : NumericFieldBase(name, value, neverModified, min, max) {
-        if (!std::is_integral<T>::value && !std::is_floating_point<T>::value) { throw "Invalid type"; }
+        if (!std::is_integral<T>::value && !std::is_floating_point<T>::value) { throw std::runtime_error("Invalid type"); }
         _value = (T)_modifiedValue;
     }
 

@@ -75,18 +75,24 @@ class Customizer
     std::mutex _workPartMutex;
     int _remainingWorkStart;
     std::vector<int> _threadProgress;
-    std::vector<bool> _isThreadDone;
+    std::vector<ThreadStatus> _threadStatus;
     int _progressTotal;
 
 public:
     Customizer(FileManager* fileManager, std::vector<std::string> commands = std::vector<std::string>());
 
-    const bool isWorkersDone() const {
-        for (const auto itd : _isThreadDone) {
-            if (!itd) return false;
+    const ThreadStatus threadStatus() const {
+        ThreadStatus status = ThreadStatus::NotRunning;
+        for (const auto s : _threadStatus) {
+            if (s == ThreadStatus::ThrownError) {
+                return ThreadStatus::ThrownError;
+            }
+            else if (s == ThreadStatus::Running || (s == ThreadStatus::Completed && status == ThreadStatus::NotRunning)) {
+                status = s;
+            }
         }
 
-        return true;
+        return status;
     }
 
     const int progressTotal() const { return _progressTotal; }

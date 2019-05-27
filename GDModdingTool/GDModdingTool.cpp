@@ -30,85 +30,106 @@ void parseConfigFile(Config& config);
 
 int main()
 {
-    if (!std::filesystem::exists("config.txt")) {
-        Print << "Couldn't find config.txt\n";
-        Print << "You can create one quickly by copying one of examples and renaming it.\n";
-        Print << "Press Enter to exit ..\n";
-        getchar();
-        return -1;
-    }
+    try {
+        Config config;
+        parseConfigFile(config);
+        FileManager fileManager(config.recordsDir, config.addRecordsDir, config.modDir, config.subDirs);
 
-    Config config;
-    parseConfigFile(config);
-    FileManager fileManager(config.recordsDir, config.addRecordsDir, config.modDir, config.subDirs);
-
-    std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-    Print << "Scanning files\n";
-    while (!fileManager.isWorkersDone()) {
-        Sleep(100);
-        TempPrint << fileManager.threadProgress() << " files scanned\n";
-    }
-
-    std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
-    Print << fileManager.threadProgress() << " files scanned ( " << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count() << " sec )\n";
-
-    auto templateNames = fileManager.getTemplateNames();
-    Print << templateNames.size() << " template names found\n\n";
-
-    Customizer customizer(&fileManager, config.commands);
-    std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
-    Print << "Pre-parsing required files\n";
-    customizer.preParse();
-    while (!customizer.isWorkersDone()) {
-        Sleep(500);
-        TempPrint << customizer.progress();
-    }
-
-    std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
-    Print << customizer.progressTotal() << " files parsed ( " << std::chrono::duration_cast<std::chrono::seconds>(t4 - t3).count() << " sec )\n\n";
-    Print << "Running tasks\n";
-    customizer.runTasks();
-
-    std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
-    Print << "Saving files\n";
-    fileManager.save();
-    while (!fileManager.isWorkersDone()) {
-        Sleep(500);
-        TempPrint << fileManager.progress();
-    }
-
-    Print << fileManager.progressTotal() << " files saved\n";
-
-    if (config.isAddStasher) {
-        Print << "Adding Stasher ..\n";
-        if (std::filesystem::exists("OptionalMods\\Stasher\\")) {
-            std::filesystem::copy("OptionalMods\\Stasher\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+        std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
+        Print << "Scanning files\n";
+        while (fileManager.threadStatus() == ThreadStatus::Running) {
+            Sleep(100);
+            TempPrint << fileManager.threadProgress() << " files scanned\n";
         }
-        else {
-            Print << "Error: Couldn't find Stasher\n";
-            log_error << "Stasher directory doesn't exist\n";
+
+        if (fileManager.threadStatus() == ThreadStatus::ThrownError) {
+            throw std::runtime_error("Error occurred while scanning files");
         }
+
+        std::chrono::high_resolution_clock::time_point t2 = std::chrono::high_resolution_clock::now();
+        Print << fileManager.threadProgress() << " files scanned ( " << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count() << " sec )\n";
+
+        auto templateNames = fileManager.getTemplateNames();
+        Print << templateNames.size() << " template names found\n\n";
+
+        Customizer customizer(&fileManager, config.commands);
+        std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
+        Print << "Pre-parsing required files\n";
+        customizer.preParse();
+        while (customizer.threadStatus() == ThreadStatus::Running) {
+            Sleep(500);
+            TempPrint << customizer.progress();
+        }
+
+        if (customizer.threadStatus() == ThreadStatus::ThrownError) {
+            throw std::runtime_error("Error occurred while pre-parsing files");
+        }
+
+        std::chrono::high_resolution_clock::time_point t4 = std::chrono::high_resolution_clock::now();
+        Print << customizer.progressTotal() << " files parsed ( " << std::chrono::duration_cast<std::chrono::seconds>(t4 - t3).count() << " sec )\n\n";
+        Print << "Running tasks\n";
+        customizer.runTasks();
+
+        std::chrono::high_resolution_clock::time_point t5 = std::chrono::high_resolution_clock::now();
+        Print << "Saving files\n";
+        fileManager.save();
+        while (fileManager.threadStatus() == ThreadStatus::Running) {
+            Sleep(500);
+            TempPrint << fileManager.progress();
+        }
+
+        if (fileManager.threadStatus() == ThreadStatus::ThrownError) {
+            throw std::runtime_error("Error occurred while saving files");
+        }
+
+        Print << fileManager.progressTotal() << " files saved\n";
+
+        if (config.isAddStasher) {
+            Print << "Adding Stasher ..\n";
+            if (std::filesystem::exists("OptionalMods\\Stasher\\")) {
+                std::filesystem::copy("OptionalMods\\Stasher\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            }
+            else {
+                Print << "Error: Couldn't find Stasher\n";
+                log_error << "Stasher directory doesn't exist\n";
+            }
+        }
+
+        if (config.isAddInventoryBagsAtStart) {
+            Print << "Adding InventoryBagsAtStart ..\n";
+            if (std::filesystem::exists("OptionalMods\\InventoryBagsAtStart\\")) {
+                std::filesystem::copy("OptionalMods\\InventoryBagsAtStart\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            }
+            else {
+                Print << "Error: Couldn't find InventoryBagsAtStart\n";
+                log_error << "InventoryBagsAtStart directory doesn't exist\n";
+            }
+        }
+
+        std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
+        Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
+    }
+    catch (const std::exception& e) {
+        log_error << e.what() << "\n";
+        Print << "Error Occurred During Execution\n";
+        Print << e.what() << "\n";
+    }
+    catch (const char* errorMessage) {
+        log_error << errorMessage << "\n";
+        Print << "Error Occurred During Execution\n";
+        Print << errorMessage << "\n";
     }
 
-    if (config.isAddInventoryBagsAtStart) {
-        Print << "Adding InventoryBagsAtStart ..\n";
-        if (std::filesystem::exists("OptionalMods\\InventoryBagsAtStart\\")) {
-            std::filesystem::copy("OptionalMods\\InventoryBagsAtStart\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
-        }
-        else {
-            Print << "Error: Couldn't find InventoryBagsAtStart\n";
-            log_error << "InventoryBagsAtStart directory doesn't exist\n";
-        }
-    }
-
-    std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
-    Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
     Print << "Press Enter to exit ..\n";
     getchar();
 }
 
 
 void parseConfigFile(Config& config) {
+    if (!std::filesystem::exists("config.txt")) {
+        throw std::runtime_error("Error: Couldn't find config.txt. You can create one quickly by copying one of examples and renaming it.");
+    }
+
     std::ifstream configFile;
     configFile.open("config.txt");
     std::string line;

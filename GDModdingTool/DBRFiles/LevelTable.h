@@ -25,7 +25,7 @@ public:
                     _records.push_back((DynWeightAffixTable*)file);
                 }
                 else {
-                    throw "Unknown file type in Level Table";
+                    throw std::runtime_error("Unknown file type in Level Table");
                 }
             }
         }

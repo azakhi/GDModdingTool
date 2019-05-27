@@ -48,12 +48,12 @@ public:
     }
 
     bool contains(std::string key) const {
-        int index = _fileManager->getFieldIndex(_templateName, key);
+        size_t index = _fileManager->getFieldIndex(_templateName, key);
         return (index < _fields.size() && _fields[index] >= 0);
     }
 
     const Field* operator [](std::string s) const {
-        int index = _fileManager->getFieldIndex(_templateName, s);
+        size_t index = _fileManager->getFieldIndex(_templateName, s);
         if (index >= _fields.size() || _fields[index] < 0) {
             return nullptr;
         }
@@ -62,7 +62,7 @@ public:
     }
 
     Field*& operator [](std::string s) {
-        int index = _fileManager->getFieldIndex(_templateName, s);
+        size_t index = _fileManager->getFieldIndex(_templateName, s);
         if (index >= _fields.size()) {
             _fields.insert(_fields.end(), index - _fields.size() + 1, -1);
         }
