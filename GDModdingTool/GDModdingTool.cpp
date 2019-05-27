@@ -189,6 +189,7 @@ void parseConfigFile(Config& config) {
             if (line != "" && line[0] != '#' && line[0] != '$') {
                 if (line[line.size() - 1] != '\\') line.push_back('\\');
                 config.recordsDir = line;
+                line = "";
             }
         }
 
@@ -201,6 +202,7 @@ void parseConfigFile(Config& config) {
             if (line != "" && line[0] != '#' && line[0] != '$') {
                 if (line[line.size() - 1] != '\\') line.push_back('\\');
                 config.addRecordsDir = line;
+                line = "";
             }
         }
         
@@ -215,6 +217,7 @@ void parseConfigFile(Config& config) {
                 if (line.substr(line.size() - 8, 8) == "records\\") line = line.substr(0, line.size() - 8);
                 if (line.substr(line.size() - 9, 9) == "database\\") line = line.substr(0, line.size() - 9);
                 config.modDir = line;
+                line = "";
             }
         }
         
