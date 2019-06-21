@@ -30,7 +30,8 @@ void Lootable::updateFromChild() {
         else if (dynamic_cast<LevelTable*>(l.file)) {
             float totWeight = 0.0f;
             float totModWeight = 0.0f;
-            std::vector<DynWeightAffixTable*> records = ((LevelTable*)l.file)->records();
+            std::vector<DynWeightAffixTable*> records;
+            ((LevelTable*)l.file)->records(records);
             for (auto r : records) {
                 totWeight += (float)(r->totalWeight());
                 totModWeight += (float)(r->totalModifiedWeight());
