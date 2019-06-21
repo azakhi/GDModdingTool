@@ -138,11 +138,13 @@ void FileManager::_scanFiles() {
         templateMap["itemdevotionreset.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["itemusableskill.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["itemnote.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["itemenchantment.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["jewelry_medal.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["oneshot_potionhealth.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["oneshot_potionmana.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["oneshot_food.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["oneshot_scroll.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
+        templateMap["oneshot_gold.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["questitem.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["itemartifact.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["jewelry_ring.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
