@@ -22,7 +22,7 @@ public:
             while (std::getline(ss, item, ';')) {
                 DBRBase* file = _fileManager->getFile(item);
                 if (file == nullptr) {
-                    log_error << "Loot file is not found: " << item << "\n";
+                    log_error << "Loot file is not found\n    Level Table: " << _directoryEntry.path().string() << "\n    File: " << item << "\n";
                 }
                 else if (file->templateName() == "leveltable.tpl") {
                     _levelTables.push_back((LevelTable*)file);
@@ -32,7 +32,7 @@ public:
                     _records.push_back((DynWeightAffixTable*)file);
                 }
                 else {
-                    log_error << "Unknown file type in Level Table: " << file->templateName() << "\n";
+                    log_error << "Unknown file type in Level Table\n    Level Table: " << _directoryEntry.path().string() << "\n    Template: " << file->templateName() << "\n";
                 }
             }
         }

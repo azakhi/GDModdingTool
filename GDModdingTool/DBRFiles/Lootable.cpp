@@ -69,7 +69,7 @@ void Lootable::adjustSpecificLootAmount(float multiplier, std::vector<ItemType> 
             }
         }
         else {
-            throw std::runtime_error("Unknown file type in Lootable");
+            log_error << "Unknown file type in Loottable\n    File: " << l.file->directoryEntry().path().string() << "\n    Template: " << l.file->templateName() << "\n";
         }
     }
 
