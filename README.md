@@ -5,7 +5,7 @@ GDModdingTool is a tool for modding Grim Dawn with two main goals:
 Check [Wiki](https://github.com/azakhi/GDModdingTool/wiki) for installation and other information.
 
 ### Issues & Questions
-You can create issues [here](https://github.com/azakhi/GDModdingTool/issues) in Github for your problems and questions. Also you can post those in Grim Dawn forums [here](https://www.grimdawn.com/forums/showthread.php?t=84229).
+You can create issues [here](https://github.com/azakhi/GDModdingTool/issues) in Github for your problems and questions. Also you can post those in Grim Dawn forums [here](https://forums.crateentertainment.com/t/tool-gdmoddingtool-tool-for-making-personal-customized-mods/50983).
 
 If you have troubles using tool, providing following files/answers would help me solve the problem:
 * Did you use ExtractFiles.bat file to extract files? If so, are you sure you gave correct paths?
