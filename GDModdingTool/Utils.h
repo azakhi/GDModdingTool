@@ -23,3 +23,15 @@ inline std::string StringTrim(const std::string& str, const std::string& whitesp
 
     return str.substr(strBegin, strRange);
 }
+
+struct Config
+{
+    std::string recordsDir = "";
+    std::string addRecordsDir = "";
+    std::string modDir = "";
+    std::vector<std::string> subDirs;
+    std::vector<std::string> addSubDirs;
+    std::vector<std::string> commands;
+    bool isAddStasher = false;
+    bool isAddInventoryBagsAtStart = false;
+};

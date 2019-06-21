@@ -9,7 +9,8 @@ C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\database\records
 #$AdditionalRecordsDirectory
 #C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\MyCustomMod\database\records
 
-# Directory where changed files should be put. If you created a new mod, use database\records subdirectory of it
+# Directory where changed files should be put. If you created a new mod, use that directory.
+# Giving path of 'records' folder also works.
 $ModDirectory
 C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\mods\test\database\records
 
@@ -21,6 +22,11 @@ game
 items
 proxies
 interactive
+
+#Subdirectories to scan for files in additional records directory. Limiting subdirectories helps with performance and preventing unexpected bugs.
+#Keep it as is if you don't know what you are doing
+#If the mod doesn't have its custom directories you can use same ones for the base files
+#$AdditionalSubDirectories
 
 ## OPTIONAL ADDITIONAL MODS
 # Remove '#' at start to add these mods.

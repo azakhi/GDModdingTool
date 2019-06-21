@@ -22,26 +22,42 @@
 
 #include <iostream>
 
-FileManager::FileManager(std::string recordsDirectory, std::string addRecordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories) {
-    if (!std::filesystem::exists(recordsDirectory)) {
-        throw std::runtime_error("Error: Couldn't find records directory: " + recordsDirectory);
+FileManager::FileManager(const Config& config) {
+    if (!std::filesystem::exists(config.recordsDir)) {
+        throw std::runtime_error("Error: Couldn't find records directory: " + config.recordsDir);
     }
 
-    if (!std::filesystem::exists(modDirectory)) {
-        throw std::runtime_error("Error: Couldn't find mod directory: " + modDirectory);
+    if (!std::filesystem::exists(config.modDir)) {
+        throw std::runtime_error("Error: Couldn't find mod directory: " + config.modDir);
     }
 
-    if (addRecordsDirectory != "" && !std::filesystem::exists(addRecordsDirectory)) {
-        throw std::runtime_error("Error: Couldn't find additional records directory: " + addRecordsDirectory);
+    if (config.addRecordsDir != "" && !std::filesystem::exists(config.addRecordsDir)) {
+        throw std::runtime_error("Error: Couldn't find additional records directory: " + config.addRecordsDir);
+    }
+
+    if (config.subDirs.size() < 1) {
+        log_warning << "No subdirectory is given. All subdirectories will be scanned.\n";
+    }
+
+    if (config.addRecordsDir != "" && config.addSubDirs.size() < 1) {
+        log_warning << "No subdirectory is given for additional source. All subdirectories will be scanned.\n";
     }
 
     _progressTotal = 0;
     _threadProgress.resize(THREAD_COUNT, 0);
     _threadStatus.resize(THREAD_COUNT, ThreadStatus::NotRunning);
-    _recordsDirectory = recordsDirectory;
-    _addRecordsDirectory = addRecordsDirectory;
-    _modDirectory = modDirectory;
-    _subDirectories = subDirectories;
+    _recordsDirectory = config.recordsDir;
+    _addRecordsDirectory = config.addRecordsDir;
+    _modDirectory = config.modDir;
+    _subDirectories = config.subDirs;
+    if (_subDirectories.size() < 1) {
+        _subDirectories.push_back("");
+    }
+
+    _addSubDirectories = config.addSubDirs;
+    if (_addSubDirectories.size() < 1) {
+        _addSubDirectories.push_back("");
+    }
 
     auto t = std::thread(&FileManager::_scanFiles, this);
     t.detach();
@@ -154,9 +170,10 @@ void FileManager::_scanFiles() {
         templateMap["weapon_axe2h.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
         templateMap["weapon_axe.tpl"] = [this](std::filesystem::directory_entry de, std::string s, int po) { addTemplate<ItemBase>(de, s, po); };
 
-        for (auto dir : _subDirectories) {
-            // Read additional first to prevent creation of overriden files
-            if (_addRecordsDirectory != "") {
+        // Read additional first to prevent creation of overriden files
+        if (_addRecordsDirectory != "") {
+            for (auto dir : _addSubDirectories) {
+                log_info << "Scanning: " << _addRecordsDirectory + dir << "\n";
                 for (const auto & entry : std::filesystem::recursive_directory_iterator(_addRecordsDirectory + dir)) {
                     _threadProgress[0]++;
                     std::string templateName = _parseTemplateName(entry);
@@ -167,7 +184,10 @@ void FileManager::_scanFiles() {
                     }
                 }
             }
+        }
 
+        for (auto dir : _subDirectories) {
+            log_info << "Scanning: " << _recordsDirectory + dir << "\n";
             for (const auto & entry : std::filesystem::recursive_directory_iterator(_recordsDirectory + dir)) {
                 _threadProgress[0]++;
                 std::string templateName = _parseTemplateName(entry);

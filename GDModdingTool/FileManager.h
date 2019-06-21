@@ -30,6 +30,7 @@ class FileManager {
     std::string _addRecordsDirectory;
     std::string _modDirectory;
     std::vector<std::string> _subDirectories;
+    std::vector<std::string> _addSubDirectories;
     std::vector<std::string> _templateNames;
     std::unordered_map<std::string, DBRData*> _templateMap;
     std::unordered_map<std::type_index, std::vector<DBRBase*>> _typeMap;
@@ -41,7 +42,7 @@ class FileManager {
     std::string _parseTemplateName(std::filesystem::directory_entry entry);
 
 public:
-    FileManager(std::string recordsDirectory, std::string addRecordsDirectory, std::string modDirectory, std::vector<std::string> subDirectories);
+    FileManager(const Config& config);
 
     const int threadProgress() const {
         int total = 0;

@@ -15,17 +15,6 @@
 #include "FileManager.h"
 #include "DBRFiles/DBRBase.h"
 
-struct Config
-{
-    std::string recordsDir = "";
-    std::string addRecordsDir = "";
-    std::string modDir = "";
-    std::vector<std::string> subDirs;
-    std::vector<std::string> commands;
-    bool isAddStasher = false;
-    bool isAddInventoryBagsAtStart = false;
-};
-
 void parseConfigFile(Config& config);
 
 int main()
@@ -33,7 +22,7 @@ int main()
     try {
         Config config;
         parseConfigFile(config);
-        FileManager fileManager(config.recordsDir, config.addRecordsDir, config.modDir, config.subDirs);
+        FileManager fileManager(config);
 
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
         Print << "Scanning files\n";
@@ -148,6 +137,23 @@ void parseConfigFile(Config& config) {
                 }
                 else {
                     config.subDirs.push_back(line);
+                    line = "";
+                }
+            }
+        }
+
+        if (line == "$AdditionalSubDirectories") {
+            while (std::getline(configFile, line)) {
+                line = StringTrim(line);
+                if (line == "" || line[0] == '#') {
+                    line = "";
+                    continue;
+                }
+                else if (line[0] == '$') { // Let others catch
+                    break;
+                }
+                else {
+                    config.addSubDirs.push_back(line);
                     line = "";
                 }
             }
