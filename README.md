@@ -17,4 +17,4 @@ path\to\tool\GDModdingTool.exe
 * Log files created by the program. Those are located in the same folder and named as Logs_DATE_TIME.txt like `Logs_27.05.19_21.44.19.txt`
 
 ### Credits
-* Thanks tt300 for [Stasher](https://www.grimdawn.com/forums/showthread.php?t=57391) mod!
+* Thanks tt300 for [Stasher](https://forums.crateentertainment.com/t/mod-stasher-v11-fo-1-1-4-1-gdx2-include-source-data-still-applicable-1-1-4-2-gdx2/41060) mod!

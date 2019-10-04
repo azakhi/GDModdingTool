@@ -1,5 +1,5 @@
 templateName,database/templates/ingameui/buttonstatic.tpl,
-FileDescription,ButtonStatic �ֿ�رհ�ťλ��(�Խ�),
+FileDescription,仓库关闭按钮位置(自建) by tt300(GD小白丁) ButtonStatic,
 bitmapNameDown,ui/buttonwindowclosedown.tex,
 bitmapNameInFocus,ui/buttonwindowcloseover.tex,
 bitmapNameUp,ui/buttonwindowcloseup.tex,
