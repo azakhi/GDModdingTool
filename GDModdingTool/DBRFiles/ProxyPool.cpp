@@ -85,7 +85,7 @@ void ProxyPool::parse() {
             if (_fieldMap[fieldName] != nullptr) {
                 Field* field = _fieldMap[fieldName];
                 NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
-                s.limit = newField;
+                s.maxPlayerLevel = newField;
                 _fieldMap[fieldName] = newField;
                 delete field;
                 field = nullptr;
@@ -95,7 +95,7 @@ void ProxyPool::parse() {
             if (_fieldMap[fieldName] != nullptr) {
                 Field* field = _fieldMap[fieldName];
                 NumericField<int>* newField = new NumericField<int>(field->name(), field->value());
-                s.limit = newField;
+                s.minPlayerLevel = newField;
                 _fieldMap[fieldName] = newField;
                 delete field;
                 field = nullptr;
