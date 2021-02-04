@@ -288,7 +288,7 @@ void FileManager::_save(int tnum, int size, std::vector<std::pair<DBRBase*, std:
                 std::string filePath = _modDirectory + "database\\" + temps[i].second;
                 std::filesystem::create_directories(std::filesystem::path(filePath).parent_path());
                 std::ofstream dbrFile;
-                dbrFile.open(filePath);
+                dbrFile.open(filePath, std::ios::binary);
                 if (dbrFile.is_open()) {
                     dbrFile << temp->text();
                     dbrFile.flush();
@@ -334,7 +334,7 @@ std::string FileManager::_parseTemplateName(std::filesystem::directory_entry ent
 
     std::string templateName = "";
     std::ifstream dbrFile;
-    dbrFile.open(entry.path());
+    dbrFile.open(entry.path(), std::ios::binary);
     std::string line;
     while (std::getline(dbrFile, line)) {
         if (templateName == "" && line.substr(0, 13) == "templateName,") {

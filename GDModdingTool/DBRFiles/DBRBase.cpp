@@ -6,7 +6,7 @@ void DBRBase::parse() {
     }
 
     std::ifstream dbrFile;
-    dbrFile.open(_directoryEntry.path());
+    dbrFile.open(_directoryEntry.path(), std::ios::binary);
     std::string line;
     while (std::getline(dbrFile, line)) {
         std::size_t commaPos = -1;
