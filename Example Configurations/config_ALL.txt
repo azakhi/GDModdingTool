@@ -31,8 +31,11 @@ interactive
 ## OPTIONAL ADDITIONAL MODS
 # Remove '#' at start to add these mods.
 
-# Stasher by tt300: https://www.grimdawn.com/forums/showthread.php?t=57391
+# Stasher by tt300: https://forums.crateentertainment.com/t/mod-stasher-v11-fo-1-1-4-1-gdx2-include-source-data-still-applicable-1-1-5-2-gdx2/41060
 #$AddStasher
+
+# New Caravan & Inventory (Extreme Edition) by tt300: https://forums.crateentertainment.com/t/mod-new-caravan-inventory-extreme-edition-apply-to-gd-v1-1-9-0-gdx2/94922
+#$AddCaravanExtreme
 
 # Gives 5 inventory bags when you talk to Hangman Jarvis at the start.
 # WARNING: This OVERRIDES 'Waking to Misery' quest and requires building quests through Asset Manager > Archive > Build...

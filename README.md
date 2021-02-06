@@ -17,4 +17,4 @@ path\to\tool\GDModdingTool.exe
 * Log files created by the program. Those are located in the same folder and named as Logs_DATE_TIME.txt like `Logs_27.05.19_21.44.19.txt`
 
 ### Credits
-* Thanks tt300 for [Stasher](https://forums.crateentertainment.com/t/mod-stasher-v11-fo-1-1-4-1-gdx2-include-source-data-still-applicable-1-1-4-2-gdx2/41060) mod!
+* Thanks tt300 for [Stasher](https://forums.crateentertainment.com/t/mod-stasher-v11-fo-1-1-4-1-gdx2-include-source-data-still-applicable-1-1-4-2-gdx2/41060) and [New Caravan & Inventory Extreme Edition](https://forums.crateentertainment.com/t/mod-new-caravan-inventory-extreme-edition-apply-to-gd-v1-1-9-0-gdx2/94922) mod!
