@@ -11,8 +11,8 @@ class ItemBase : public DBRBase
     NumericField<int>* _maxStackSize = nullptr;
 
 public:
-    ItemBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    ItemBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
 
     const bool cannotPickupMultiple() const { return _cannotPickupMultiple; }
     const ItemClass itemClass() const { return _itemClass; }

@@ -11,8 +11,8 @@ protected:
     Lootable _lootable;
 
 public:
-    LootMasterTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    LootMasterTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse();
     void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
 
@@ -25,7 +25,7 @@ public:
     }
 
     const bool isDirty() const {
-        return _lootable.isDirty() || DBRBase::isDirty();
+        return _isAlwaysDirty || _lootable.isDirty() || DBRBase::isDirty();
     }
 
 private:

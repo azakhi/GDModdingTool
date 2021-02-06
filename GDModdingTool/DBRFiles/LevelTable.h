@@ -10,8 +10,8 @@ class LevelTable : public DBRBase
     std::vector<LevelTable*> _levelTables;
 
 public:
-    LevelTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    LevelTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse() {
         if (_isParsed) return;
         DBRBase::parse();

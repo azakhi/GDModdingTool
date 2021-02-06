@@ -14,8 +14,8 @@ class Monster : public DBRBase
     int _faction;
 
 public:
-    Monster(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    Monster(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse();
     void updateFromChild();
     void adjustLootAmount(float multiplier);
@@ -32,6 +32,10 @@ public:
     }
 
     const bool isDirty() const {
+        if (_isAlwaysDirty) {
+            return true;
+        }
+
         for (const auto&[key, l] : _lootables) {
             if (l.isDirty()) {
                 return true;

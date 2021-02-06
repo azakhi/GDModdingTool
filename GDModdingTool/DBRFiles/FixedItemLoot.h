@@ -11,14 +11,18 @@ class FixedItemLoot : public DBRBase
 
     void _updateLootEquations();
 public:
-    FixedItemLoot(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    FixedItemLoot(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse();
     void updateFromChild();
     void adjustLootAmount(float multiplier);
     void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
 
     const bool isDirty() const {
+        if (_isAlwaysDirty) {
+            return true;
+        }
+
         for (const auto& l : _lootables) {
             if (l.isDirty()) {
                 return true;

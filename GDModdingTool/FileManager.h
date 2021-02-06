@@ -29,6 +29,7 @@ class FileManager {
     std::string _recordsDirectory;
     std::string _addRecordsDirectory;
     std::string _modDirectory;
+    std::vector<std::string> _includedModDirs;
     std::vector<std::string> _subDirectories;
     std::vector<std::string> _addSubDirectories;
     std::vector<std::string> _templateNames;
@@ -112,7 +113,7 @@ public:
     void save();
 
     template <typename T>
-    void addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName, int pathOffset);
+    void addTemplate(std::filesystem::directory_entry directoryEntry, std::string templateName, int pathOffset, bool isAlwaysDirty = false);
     template <typename T>
     std::vector<DBRBase*> getFiles() {
         auto it = _typeMap.find(std::type_index(typeid(T)));

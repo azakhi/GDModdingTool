@@ -16,8 +16,8 @@ class ProxyPool : public DBRBase
 
     bool _isRatioPreserved() const;
 public:
-    ProxyPool(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    ProxyPool(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse();
     void adjustSpawnAmount(float multiplier);
     void adjustSpawnMin(float multiplier);
@@ -36,6 +36,6 @@ public:
     }
 
     const bool isDirty() const {
-        return !_ignoreGameBalance && (DBRBase::isDirty() || !_isRatioPreserved());
+        return _isAlwaysDirty || (!_ignoreGameBalance && (DBRBase::isDirty() || !_isRatioPreserved()));
     }
 };

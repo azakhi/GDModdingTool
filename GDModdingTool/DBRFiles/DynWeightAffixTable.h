@@ -18,8 +18,8 @@ class DynWeightAffixTable : public LootMasterTable
     //NumericField<int>* _rarePrefixNormalSuffix = nullptr;
 
 public:
-    DynWeightAffixTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : LootMasterTable(fileManager, directoryEntry, templateName) {}
+    DynWeightAffixTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : LootMasterTable(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
 
     void parse();
     void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);

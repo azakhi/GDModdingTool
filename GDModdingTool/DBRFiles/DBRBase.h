@@ -84,10 +84,11 @@ protected:
     std::filesystem::directory_entry _directoryEntry;
     std::string _templateName;
     OrderedFieldMap _fieldMap;
+    bool _isAlwaysDirty;
 
 public:
-    DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : _directoryEntry(directoryEntry), _fileManager(fileManager), _templateName(templateName), _fieldMap(fileManager, templateName) {};
+    DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : _directoryEntry(directoryEntry), _fileManager(fileManager), _templateName(templateName), _fieldMap(fileManager, templateName), _isAlwaysDirty(isAlwaysDirty) {};
     virtual void parse();
     virtual void applyChanges();
     void addFieldIfNotExists(std::string fieldName, std::string value);
@@ -104,6 +105,10 @@ public:
     }
 
     virtual const bool isDirty() const {
+        if (_isAlwaysDirty) {
+            return true;
+        }
+
         for (const auto& f : _fieldMap.fieldsOrdered()) {
             if (f != nullptr && f->isModified()) return true;
         }

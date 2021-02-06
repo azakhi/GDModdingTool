@@ -22,6 +22,26 @@ int main()
     try {
         Config config;
         parseConfigFile(config);
+        if (config.isAddCaravanExtreme) {
+            if (std::filesystem::exists("OptionalMods\\CaravanExtreme\\Parsed\\database\\records\\")) {
+                config.includedModDirs.push_back("OptionalMods\\CaravanExtreme\\Parsed\\database\\records\\");
+            }
+            else {
+                Print << "Error: Couldn't find CaravanExtreme\n";
+                log_error << "CaravanExtreme directory doesn't exist\n";
+            }
+        }
+
+        if (config.isAddStasher) {
+            if (std::filesystem::exists("OptionalMods\\Stasher\\Parsed\\database\\records\\")) {
+                config.includedModDirs.push_back("OptionalMods\\Stasher\\Parsed\\database\\records\\");
+            }
+            else {
+                Print << "Error: Couldn't find Stasher\n";
+                log_error << "Stasher directory doesn't exist\n";
+            }
+        }
+
         FileManager fileManager(config);
 
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -73,10 +93,21 @@ int main()
 
         Print << fileManager.progressTotal() << " files saved\n";
 
+        if (config.isAddCaravanExtreme) {
+            Print << "Adding CaravanExtreme ..\n";
+            if (std::filesystem::exists("OptionalMods\\CaravanExtreme\\CopyOnly\\")) {
+                std::filesystem::copy("OptionalMods\\CaravanExtreme\\CopyOnly\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            }
+            else {
+                Print << "Error: Couldn't find CaravanExtreme\n";
+                log_error << "CaravanExtreme directory doesn't exist\n";
+            }
+        }
+
         if (config.isAddStasher) {
             Print << "Adding Stasher ..\n";
-            if (std::filesystem::exists("OptionalMods\\Stasher\\")) {
-                std::filesystem::copy("OptionalMods\\Stasher\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            if (std::filesystem::exists("OptionalMods\\Stasher\\CopyOnly\\")) {
+                std::filesystem::copy("OptionalMods\\Stasher\\CopyOnly\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
             }
             else {
                 Print << "Error: Couldn't find Stasher\n";
@@ -86,8 +117,8 @@ int main()
 
         if (config.isAddInventoryBagsAtStart) {
             Print << "Adding InventoryBagsAtStart ..\n";
-            if (std::filesystem::exists("OptionalMods\\InventoryBagsAtStart\\")) {
-                std::filesystem::copy("OptionalMods\\InventoryBagsAtStart\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+            if (std::filesystem::exists("OptionalMods\\InventoryBagsAtStart\\CopyOnly\\")) {
+                std::filesystem::copy("OptionalMods\\InventoryBagsAtStart\\CopyOnly\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
             }
             else {
                 Print << "Error: Couldn't find InventoryBagsAtStart\n";
@@ -112,7 +143,6 @@ int main()
     Print << "Press Enter to exit ..\n";
     getchar();
 }
-
 
 void parseConfigFile(Config& config) {
     if (!std::filesystem::exists("config.txt")) {
@@ -183,6 +213,11 @@ void parseConfigFile(Config& config) {
 
         if (line == "$AddInventoryBagsAtStart") {
             config.isAddInventoryBagsAtStart = true;
+            line = "";
+        }
+
+        if (line == "$AddCaravanExtreme") {
+            config.isAddCaravanExtreme = true;
             line = "";
         }
 

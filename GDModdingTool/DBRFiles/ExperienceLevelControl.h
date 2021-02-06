@@ -18,8 +18,8 @@ class ExperienceLevelControl : public DBRBase {
     ArrayField<NumericField<int>>* _skillModPoints = nullptr;
 
 public:
-    ExperienceLevelControl(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName)
-        : DBRBase(fileManager, directoryEntry, templateName) {}
+    ExperienceLevelControl(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
+        : DBRBase(fileManager, directoryEntry, templateName, isAlwaysDirty) {}
     void parse();
     void setMaxPlayerLevel(int value);
     void setCharModPoints(int value);

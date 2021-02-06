@@ -1,0 +1,7 @@
+templateName,database/templates/ingameui/caravanwindowpublic.tpl,
+FileDescription,π≤œÌ≤÷ø‚ªª“≥∞¥≈•Œª÷√ by front210 ButtonStaticText,
+InventoryDBR,records/ui/caravan/caravan_transferinventory.dbr,
+TransferCostEquation,(marketItemCost/2)*((playerLevel/10)+1),
+TransferPageCostArray,1;2;3;4;5;6,
+WindowLocationX,0,
+WindowLocationY,-55,
