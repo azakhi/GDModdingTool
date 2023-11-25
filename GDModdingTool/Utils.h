@@ -7,7 +7,7 @@
 #define log_info (*Logger::logger())
 #define log_warning (*Logger::logger())<<"WARNING: "
 #define log_debug (*Logger::logger())<<"DEBUG: "
-#define log_error (*Logger::logger())<<"ERROR: "
+#define log_error (*Logger::error())
 #endif // !log_info
 
 enum ThreadStatus { NotRunning, Running, Completed, ThrownError };

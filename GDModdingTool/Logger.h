@@ -3,6 +3,7 @@
 
 struct Log {
     std::ofstream* logFile = NULL;
+    std::string logFileName = "";
 
     template <typename T>
     Log& operator<<(T const& obj) {
@@ -29,5 +30,13 @@ public:
     ~Logger();
     Logger(Logger& copy) {}
     Log* init();
+    static std::string LogFileName() { return Logger::logger()->logFileName; };
     static Log* logger();
+    static int ErrorCount;
+    static Log* error() {
+        auto logger = Logger::logger();
+        (*logger) << "ERROR: ";
+        ErrorCount++;
+        return logger;
+    }
 };

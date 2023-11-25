@@ -36,5 +36,6 @@ Log* Logger::init() {
     delete _logger;
     _logger = new Log();
     _logger->logFile = &_logFile;
+    _logger->logFileName = logFileName;
     return _logger;
 }

@@ -17,8 +17,11 @@
 
 void parseConfigFile(Config& config);
 
+int Logger::ErrorCount;
+
 int main()
 {
+    Logger::ErrorCount = 0;
     try {
         Config config;
         parseConfigFile(config);
@@ -128,6 +131,9 @@ int main()
 
         std::chrono::high_resolution_clock::time_point t6 = std::chrono::high_resolution_clock::now();
         Print << "Finished ( " << std::chrono::duration_cast<std::chrono::seconds>(t6 - t5).count() << " sec )\n";
+        if (Logger::ErrorCount > 0) {
+            Print << "\nThere were " << Logger::ErrorCount << " errors. Check logs in " << Logger::LogFileName() << "\n";
+        }
     }
     catch (const std::exception& e) {
         log_error << e.what() << "\n";
