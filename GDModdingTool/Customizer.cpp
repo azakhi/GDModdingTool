@@ -285,6 +285,7 @@ void Customizer::setDevotionPointsPerShrine(int point) {
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, point]() {
         fmCopy->modifyField("staticshrine.tpl", "devotionPoints", [point](std::string str) -> std::string {
+            if (str == "0") return str; // Special shrines
             return std::to_string(point);
         });
     };
