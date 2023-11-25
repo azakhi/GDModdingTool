@@ -15,6 +15,7 @@
 #include "DBRFiles/DynWeightAffixTable.h"
 #include "DBRFiles/LevelTable.h"
 #include "DBRFiles/ExperienceLevelControl.h"
+#include "DBRFiles/ExperienceFormulas.h"
 
 class ParamTypes
 {
@@ -25,6 +26,7 @@ public:
     static const std::function<bool(std::string)> Boolean;
     static const std::function<AffixType(std::string)> AffixTypeEnum;
     static const std::function<LootSource(std::string)> LootSourceEnum;
+    static const std::function<DifficultyType(std::string)> DifficultyTypeEnum;
     static const std::function<MonsterClass(std::string)> MonsterClassEnum;
     static const std::function<ItemType(std::string)> ItemTypeEnum;
     static const std::function<ItemClass(std::string)> ItemClassEnum;
@@ -37,6 +39,7 @@ public:
     static const std::function<bool(std::string)> BooleanValidator;
     static const std::function<bool(std::string)> AffixTypeEnumValidator;
     static const std::function<bool(std::string)> LootSourceEnumValidator;
+    static const std::function<bool(std::string)> DifficultyTypeEnumValidator;
     static const std::function<bool(std::string)> MonsterClassEnumValidator;
     static const std::function<bool(std::string)> ItemTypeEnumValidator;
     static const std::function<bool(std::string)> ItemClassEnumValidator;
@@ -116,6 +119,8 @@ public:
     void adjustCommonSpawnAmount(float multiplier);
     void adjustCommonSpawnMin(float multiplier);
     void adjustCommonSpawnMax(float multiplier);
+    void adjustExpGained(DifficultyType difficulty, float multiplier);
+    void setExpGainedEquation(DifficultyType difficulty, std::string value);
     void adjustExpRequirement(float multiplier);
     void setExpRequirementEquation(std::string value);
     void adjustFactionMarketDiscounts(float multiplier);

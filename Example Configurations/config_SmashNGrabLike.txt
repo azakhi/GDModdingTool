@@ -28,7 +28,7 @@ AdjustAffixWeight 5 RareAffix NormalAffix
 AdjustAffixWeight 5 NormalAffix RareAffix
 
 # Less XP and Reputation requirement
-AdjustExpRequirement 0.66
+AdjustExperienceGained All 1.5
 AdjustFactionRepRequirements 0.75
 
 # Monster scaling

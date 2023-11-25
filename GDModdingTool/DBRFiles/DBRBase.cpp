@@ -1,5 +1,19 @@
 #include "DBRBase.h"
 
+void DBRBase::adjustFormulaField(std::string fieldName, float multiplier) {
+    if (_fieldMap[fieldName] != nullptr) {
+        std::ostringstream os;
+        os << std::fixed << std::setprecision(2) << "(" << _fieldMap[fieldName]->value() << ") * " << multiplier;
+        _fieldMap[fieldName]->setModifiedValue(os.str());
+    }
+}
+
+void DBRBase::setFormulaField(std::string fieldName, std::string value) {
+    if (_fieldMap[fieldName] != nullptr) {
+        _fieldMap[fieldName]->setModifiedValue(value);
+    }
+}
+
 void DBRBase::parse() {
     if (_isParsed) {
         return;

@@ -17,6 +17,7 @@ enum MonsterClass { NoClass = -1, Common, Champion, Hero, Quest, Boss };
 enum ItemClass { ClassNone = -1, ClassCommon, ClassMagical, ClassRare, ClassEpic, ClassLegendary, ClassQuest };
 enum ItemType { TypeNone = -1, TypeAmulet, TypeArmor, TypeBelt, TypeBlueprint, TypeComponent, TypeMedal, TypePotion, TypeQuest, TypeRelic, TypeRing, TypeShield, TypeWeapon };
 enum AffixType { NoAffix, NormalAffix, RareAffix };
+enum DifficultyType { Normal, Elite, Ultimate, Challenge, AllDifficulties };
 
 struct Loot
 {
@@ -85,6 +86,9 @@ protected:
     std::string _templateName;
     OrderedFieldMap _fieldMap;
     bool _isAlwaysDirty;
+
+    void adjustFormulaField(std::string fieldName, float multiplier);
+    void setFormulaField(std::string fieldName, std::string value);
 
 public:
     DBRBase(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)

@@ -54,6 +54,9 @@
     <ClCompile Include="DBRFiles\ExperienceLevelControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DBRFiles\ExperienceFormulas.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="FileManager.h">
@@ -102,6 +105,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DBRFiles\ExperienceLevelControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DBRFiles\ExperienceFormulas.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

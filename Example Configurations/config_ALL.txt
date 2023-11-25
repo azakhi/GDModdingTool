@@ -48,12 +48,24 @@ $Commands
 
 ## PLAYER
 
+# Adjusts amount of gained XP on different difficulties.
+# Parameter 1: Difficulty. Valid values: Normal, Elite, Ultimate, Challenge, All
+# Parameter 2 (Float): Gained XP is multiplied by this
+#AdjustExperienceGained All 0.66
+
+# Sets the amount of gained XP on different difficulties equation to given value. Given example is default for Normal.
+# Parameter 1: Difficulty. Valid values: Normal, Elite, Ultimate, Challenge, All
+# Parameter 2 (String): Equation. WARNING: Be sure that there are no spaces in equation
+#SetExperienceGainedEquation Normal (((monsterLevel*12.75-(averagePartyLevel*averagePartyLevel/50))+((monsterLevel-averagePartyLevel)*(averagePartyLevel/1.12)))*0.12)*(1+(monsterExperience/100))+3
+
 # Adjusts amount of required XP per level.
 # Parameter 1 (Float): XP requirement is multiplied by this
+# WARNING: Use 'AdjustExperienceGained' instead if possible as it gives more flexibility for future changes
 #AdjustExpRequirement 0.66
 
 # Sets the experience requirement equation to given value. Given example is default.
 # Parameter 1 (String): Equation. WARNING: Be sure that there are no spaces in equation
+# WARNING: Use 'SetExperienceGainedEquation' instead if possible as it gives more flexibility for future changes
 #SetExperienceLevelEquation (((((playerLevel*playerLevel*playerLevel)^1.16)*32)+((playerLevel*playerLevel)*300))*0.1)+36
 
 # Sets maximum level player can reach.

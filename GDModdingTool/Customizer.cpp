@@ -18,7 +18,15 @@ const std::function<LootSource(std::string)> ParamTypes::LootSourceEnum = [](std
     if (s == "Chest") return LootSource::Chest;
     else if (s == "Enemy") return LootSource::Enemy;
     else if (s == "All") return LootSource::All;
-    else throw std::runtime_error("Invalid Affix");
+    else throw std::runtime_error("Invalid Loot Source");
+};
+const std::function<DifficultyType(std::string)> ParamTypes::DifficultyTypeEnum = [](std::string s) {
+    if (s == "Normal") return DifficultyType::Normal;
+    else if (s == "Elite") return DifficultyType::Elite;
+    else if (s == "Ultimate") return DifficultyType::Ultimate;
+    else if (s == "Challenge") return DifficultyType::Challenge;
+    else if (s == "All") return DifficultyType::AllDifficulties;
+    else throw std::runtime_error("Invalid Difficulty");
 };
 const std::function<MonsterClass(std::string)> ParamTypes::MonsterClassEnum = [](std::string s) { return DBRBase::MonsterClassOf(s); };
 const std::function<ItemType(std::string)> ParamTypes::ItemTypeEnum = [](std::string s) { return DBRBase::ItemTypeOf(s); };
@@ -36,6 +44,7 @@ const std::function<bool(std::string)> ParamTypes::FloatValidator = [](std::stri
 const std::function<bool(std::string)> ParamTypes::BooleanValidator = [](std::string s) { return s == "True" || s == "False"; };
 const std::function<bool(std::string)> ParamTypes::AffixTypeEnumValidator = [](std::string s) { try { ParamTypes::AffixTypeEnum(s); return true; } catch (...) { return false; } };
 const std::function<bool(std::string)> ParamTypes::LootSourceEnumValidator = [](std::string s) { try { ParamTypes::LootSourceEnum(s); return true; } catch (...) { return false; } };
+const std::function<bool(std::string)> ParamTypes::DifficultyTypeEnumValidator = [](std::string s) { try { ParamTypes::DifficultyTypeEnum(s); return true; } catch (...) { return false; } };
 const std::function<bool(std::string)> ParamTypes::MonsterClassEnumValidator = [](std::string s) { return DBRBase::MonsterClassOf(s) != MonsterClass::NoClass; };
 const std::function<bool(std::string)> ParamTypes::ItemTypeEnumValidator = [](std::string s) { return DBRBase::ItemTypeOf(s) != ItemType::TypeNone; };
 const std::function<bool(std::string)> ParamTypes::ItemClassEnumValidator = [](std::string s) { return DBRBase::ItemClassOf(s) != ItemClass::ClassNone; };
@@ -76,8 +85,16 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustCommonSpawnMin(ParamTypes::Float(params[0])); });
     _commandMap["AdjustCommonSpawnMax"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustCommonSpawnMax(ParamTypes::Float(params[0])); });
+
+    _commandMap["AdjustExperienceGained"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::DifficultyTypeEnumValidator, ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustExpGained(ParamTypes::DifficultyTypeEnum(params[0]), ParamTypes::Float(params[1])); });
+    _commandMap["SetExperienceGainedEquation"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::DifficultyTypeEnumValidator, [](std::string s) { return true; } }),
+        [this](std::vector<std::string> params) { setExpGainedEquation(ParamTypes::DifficultyTypeEnum(params[0]), params[1]); });
     _commandMap["AdjustExpRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustExpRequirement(ParamTypes::Float(params[0])); });
+    _commandMap["SetExperienceLevelEquation"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
+        [this](std::vector<std::string> params) { setExpRequirementEquation(params[0]); });
+
     _commandMap["AdjustFactionMarketDiscounts"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustFactionMarketDiscounts(ParamTypes::Float(params[0])); });
     _commandMap["SetFactionMarketDiscount"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) {return ParamTypes::IntegerRangeValidator(s, 1, 8); }, ParamTypes::IntegerValidator }),
@@ -137,8 +154,6 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustSkillModPointPerLevel(ParamTypes::Integer(params[0])); });
     _commandMap["SetSkillPointPerLevel"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
         [this](std::vector<std::string> params) { setSkillModPointPerLevel(params[0]); });
-    _commandMap["SetExperienceLevelEquation"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
-        [this](std::vector<std::string> params) { setExpRequirementEquation(params[0]); });
 
     _parseCommands(commands);
 }
@@ -263,6 +278,32 @@ void Customizer::adjustGoldDrop(float multiplier) {
             os << std::fixed << std::setprecision(1) << "(" << str << ") * " << multiplier;
             return os.str();
         });
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustExpGained(DifficultyType difficulty, float multiplier) {
+    _addFileForPreParse<ExperienceFormulas>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, difficulty, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceFormulas>();
+        for (auto temp : temps) {
+            ExperienceFormulas* exp = (ExperienceFormulas*)temp;
+            exp->adjustExpGained(difficulty, multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setExpGainedEquation(DifficultyType difficulty, std::string value) {
+    _addFileForPreParse<ExperienceFormulas>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, difficulty, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceFormulas>();
+        for (auto temp : temps) {
+            ExperienceFormulas* exp = (ExperienceFormulas*)temp;
+            exp->setExpGainedEquation(difficulty, value);
+        }
     };
     _tasks.push_back(f);
 }
