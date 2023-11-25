@@ -102,6 +102,7 @@ public:
 template <class F, class = std::enable_if_t<std::is_base_of<Field, F>::value, F>>
 class ArrayField : public Field {
     std::vector<F> _values;
+    size_t _initialSize;
 public:
     ArrayField(std::string name, std::string value, bool neverModified = false, float min = 0.0f, float max = FLT_MAX) : Field(name, value, neverModified) {
         std::stringstream ss(value);
@@ -114,6 +115,8 @@ public:
                 _values.push_back(F(name, item));
             }
         }
+
+        _initialSize = _values.size();
     }
 
     const std::string modifiedValue() const {
@@ -146,17 +149,27 @@ public:
     }
 
     void setModifiedValue(std::string value, char separator) {
-        _values.clear();
         std::stringstream ss(value);
         std::string item = "";
+        auto counter = 0;
         while (std::getline(ss, item, separator)) {
-            F v(name(), item);
-            _values.push_back(v);
+            if (counter < _values.size()) {
+                _values[counter].setModifiedValue(item);
+            }
+            else {
+                F v(name(), item);
+                _values.push_back(v);
+            }
+            counter++;
+        }
+        while (counter < _values.size()) {
+            _values.pop_back();
         }
     }
 
     bool isModified() const {
         if (_neverModified) return false;
+        if (_values.size() != _initialSize) return true;
 
         for (const auto& v : _values) {
             if (v.isModified()) {
