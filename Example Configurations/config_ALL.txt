@@ -48,6 +48,10 @@ $Commands
 
 ## PLAYER
 
+# Adjusts the player run speed.
+# Parameter 1 (Float): Run speed bonus caps are multiplied by this.
+#AdjustRunSpeed 2.0
+
 # Adjusts amount of gained XP on different difficulties.
 # Parameter 1: Difficulty. Valid values: Normal, Elite, Ultimate, Challenge, All
 # Parameter 2 (Float): Gained XP is multiplied by this

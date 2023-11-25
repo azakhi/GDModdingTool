@@ -35,4 +35,5 @@ AdjustFactionRepRequirements 0.75
 RemoveDifficultyLimits
 
 # Quality of life
+AdjustRunSpeed 2.0
 SetItemStackLimit 500 Potion

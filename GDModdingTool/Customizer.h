@@ -136,6 +136,7 @@ public:
     void adjustSpecificLootAmount(float multiplier, std::vector<ItemType> types = std::vector<ItemType>(), std::vector<ItemClass> rarities = std::vector<ItemClass>(), bool isAnd = false);
     void increaseMonsterClassLimit(int limit, MonsterClass monsterClass);
     void removeDifficultyLimits();
+    void adjustRunSpeed(float multiplier);
     void setDevotionPointsPerShrine(int point);
     void setItemStackLimit(int limit, ItemType type);
     void setMaxDevotionPoints(int point);

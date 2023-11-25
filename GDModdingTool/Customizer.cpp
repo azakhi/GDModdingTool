@@ -131,6 +131,9 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { setDevotionPointsPerShrine(ParamTypes::Integer(params[0])); });
     _commandMap["SetItemStackLimit"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator, ParamTypes::ItemTypeEnumValidator }),
         [this](std::vector<std::string> params) { setItemStackLimit(ParamTypes::Integer(params[0]), ParamTypes::ItemTypeEnum(params[1])); });
+
+    _commandMap["AdjustRunSpeed"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustRunSpeed(ParamTypes::Float(params[0])); });
     _commandMap["SetMaxDevotionPoints"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
         [this](std::vector<std::string> params) { setMaxDevotionPoints(ParamTypes::Integer(params[0])); });
     _commandMap["SetMaxLevel"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::IntegerValidator }),
@@ -224,6 +227,21 @@ void Customizer::runTasks() {
     for (auto& f : _tasks) {
         f();
     }
+}
+
+void Customizer::adjustRunSpeed(float multiplier) {
+    _addFileForPreParse("gameengine.tpl");
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<std::string> fields;
+        fields.push_back("playerRunSpeedCapMax");
+        fields.push_back("playerRunSpeedCapMin");
+        fmCopy->modifyField("gameengine.tpl", fields, [multiplier](std::string str) -> std::string {
+            auto old = std::stof(str);
+            return std::to_string(old * multiplier);
+        });
+    };
+    _tasks.push_back(f);
 }
 
 void Customizer::setMaxDevotionPoints(int point) {
