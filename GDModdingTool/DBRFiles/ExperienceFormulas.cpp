@@ -59,3 +59,11 @@ void ExperienceFormulas::setExpGainedEquation(DifficultyType difficulty, std::st
             throw std::runtime_error("Unexpected Difficulty Type");
     }
 }
+
+void ExperienceFormulas::adjustDeathPenalty(float multiplier) {
+    adjustFormulaField("deathPenaltyEquation", multiplier);
+}
+
+void ExperienceFormulas::setDeathPenaltyEquation(std::string value) {
+    setFormulaField("deathPenaltyEquation", value);
+}

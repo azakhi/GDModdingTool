@@ -11,4 +11,6 @@ public:
     void parse();
     void adjustExpGained(DifficultyType difficulty, float multiplier);
     void setExpGainedEquation(DifficultyType difficulty, std::string value);
+    void adjustDeathPenalty(float multiplier);
+    void setDeathPenaltyEquation(std::string value);
 };

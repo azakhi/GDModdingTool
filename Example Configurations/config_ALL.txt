@@ -58,6 +58,14 @@ $Commands
 # Parameter 2 (String): Equation. WARNING: Be sure that there are no spaces in equation
 #SetExperienceGainedEquation Normal (((monsterLevel*12.75-(averagePartyLevel*averagePartyLevel/50))+((monsterLevel-averagePartyLevel)*(averagePartyLevel/1.12)))*0.12)*(1+(monsterExperience/100))+3
 
+# Adjusts amount of XP lost on death.
+# Parameter 1 (Float): XP lost is multiplied by this
+#AdjustDeathPenalty 0.66
+
+# Sets the XP lost on death equation to given value. Given example is default.
+# Parameter 1 (String): Equation. WARNING: Be sure that there are no spaces in equation
+#SetDeathPenaltyEquation ((200*(playerLevel^2.25)))*(currentPlayerLevel/8000)
+
 # Adjusts amount of required XP per level.
 # Parameter 1 (Float): XP requirement is multiplied by this
 # WARNING: Use 'AdjustExperienceGained' instead if possible as it gives more flexibility for future changes

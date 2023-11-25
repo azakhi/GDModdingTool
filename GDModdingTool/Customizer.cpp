@@ -90,6 +90,11 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustExpGained(ParamTypes::DifficultyTypeEnum(params[0]), ParamTypes::Float(params[1])); });
     _commandMap["SetExperienceGainedEquation"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::DifficultyTypeEnumValidator, [](std::string s) { return true; } }),
         [this](std::vector<std::string> params) { setExpGainedEquation(ParamTypes::DifficultyTypeEnum(params[0]), params[1]); });
+    _commandMap["AdjustDeathPenalty"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustDeathPenalty(ParamTypes::Float(params[0])); });
+    _commandMap["SetDeathPenaltyEquation"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
+        [this](std::vector<std::string> params) { setDeathPenaltyEquation(params[0]); });
+
     _commandMap["AdjustExpRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustExpRequirement(ParamTypes::Float(params[0])); });
     _commandMap["SetExperienceLevelEquation"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) { return true; } }),
@@ -303,6 +308,32 @@ void Customizer::setExpGainedEquation(DifficultyType difficulty, std::string val
         for (auto temp : temps) {
             ExperienceFormulas* exp = (ExperienceFormulas*)temp;
             exp->setExpGainedEquation(difficulty, value);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::adjustDeathPenalty(float multiplier) {
+    _addFileForPreParse<ExperienceFormulas>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceFormulas>();
+        for (auto temp : temps) {
+            ExperienceFormulas* exp = (ExperienceFormulas*)temp;
+            exp->adjustDeathPenalty(multiplier);
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setDeathPenaltyEquation(std::string value) {
+    _addFileForPreParse<ExperienceFormulas>();
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, value]() {
+        std::vector<DBRBase*> temps = fmCopy->getFiles<ExperienceFormulas>();
+        for (auto temp : temps) {
+            ExperienceFormulas* exp = (ExperienceFormulas*)temp;
+            exp->setDeathPenaltyEquation(value);
         }
     };
     _tasks.push_back(f);
