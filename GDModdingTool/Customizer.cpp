@@ -39,6 +39,13 @@ const std::function<bool(std::string)> ParamTypes::LootSourceEnumValidator = [](
 const std::function<bool(std::string)> ParamTypes::MonsterClassEnumValidator = [](std::string s) { return DBRBase::MonsterClassOf(s) != MonsterClass::NoClass; };
 const std::function<bool(std::string)> ParamTypes::ItemTypeEnumValidator = [](std::string s) { return DBRBase::ItemTypeOf(s) != ItemType::TypeNone; };
 const std::function<bool(std::string)> ParamTypes::ItemClassEnumValidator = [](std::string s) { return DBRBase::ItemClassOf(s) != ItemClass::ClassNone; };
+const std::function<bool(std::string, int min, int max)> ParamTypes::IntegerRangeValidator = [](std::string s, int min, int max) {
+    try {
+        auto value = std::stoi(s);
+        return value >= min && value <= max;
+    }
+    catch (...) { return false; }
+};
 const std::function<bool(std::string, std::function<bool(std::string)>)> ParamTypes::VectorValidator = [](std::string s, std::function<bool(std::string)> f) {
     std::stringstream ss(s);
     std::string item = "";
@@ -71,8 +78,14 @@ Customizer::Customizer(FileManager* fileManager, std::vector<std::string> comman
         [this](std::vector<std::string> params) { adjustCommonSpawnMax(ParamTypes::Float(params[0])); });
     _commandMap["AdjustExpRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustExpRequirement(ParamTypes::Float(params[0])); });
+    _commandMap["AdjustFactionMarketDiscounts"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
+        [this](std::vector<std::string> params) { adjustFactionMarketDiscounts(ParamTypes::Float(params[0])); });
+    _commandMap["SetFactionMarketDiscount"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) {return ParamTypes::IntegerRangeValidator(s, 1, 8); }, ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setFactionMarketDiscount(ParamTypes::Integer(params[0]), ParamTypes::Integer(params[1])); });
     _commandMap["AdjustFactionRepRequirements"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustFactionRepRequirements(ParamTypes::Float(params[0])); });
+    _commandMap["SetFactionRepRequirement"] = Command(std::vector<std::function<bool(std::string)>>({ [](std::string s) {return ParamTypes::IntegerRangeValidator(s, 1, 8); }, ParamTypes::IntegerValidator }),
+        [this](std::vector<std::string> params) { setFactionRepRequirement(ParamTypes::Integer(params[0]), ParamTypes::Integer(params[1])); });
     _commandMap["AdjustGoldDrop"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator }),
         [this](std::vector<std::string> params) { adjustGoldDrop(ParamTypes::Float(params[0])); });
     _commandMap["AdjustLootAmount"] = Command(std::vector<std::function<bool(std::string)>>({ ParamTypes::FloatValidator, ParamTypes::LootSourceEnumValidator }),
@@ -542,8 +555,47 @@ void Customizer::setMonsterClassMinPlayerLevel(int level, MonsterClass monsterCl
     _tasks.push_back(f);
 }
 
+void Customizer::adjustFactionMarketDiscounts(float multiplier) {
+    _addFileForPreParse("gamefactions.tpl");
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, multiplier]() {
+        std::vector<std::string> fields;
+        fields.push_back("factionMarketDiscount1");
+        fields.push_back("factionMarketDiscount2");
+        fields.push_back("factionMarketDiscount3");
+        fields.push_back("factionMarketDiscount5");
+        fields.push_back("factionMarketDiscount6");
+        fields.push_back("factionMarketDiscount7");
+        fields.push_back("factionMarketDiscount8");
+        std::vector<DBRBase*> temps = fmCopy->getFiles("gamefactions.tpl");
+        for (auto temp : temps) {
+            temp->modifyField(fields, [multiplier](std::string str) -> std::string {
+                float value = std::stof(str);
+                return std::to_string((int)(value * multiplier + (value > 0 ? 0.5f : -0.5f)));
+            });
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setFactionMarketDiscount(int level, int value) {
+    _addFileForPreParse("gamefactions.tpl");
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, level, value]() {
+        std::vector<std::string> fields;
+        fields.push_back("factionMarketDiscount" + std::to_string(level));
+        std::vector<DBRBase*> temps = fmCopy->getFiles("gamefactions.tpl");
+        for (auto temp : temps) {
+            temp->modifyField(fields, [value](std::string str) -> std::string {
+                return std::to_string(value);
+            });
+        }
+    };
+    _tasks.push_back(f);
+}
+
 void Customizer::adjustFactionRepRequirements(float multiplier) {
-    _addFileForPreParse("gameengine.tpl");
+    _addFileForPreParse("gamefactions.tpl");
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy, multiplier]() {
         std::vector<std::string> fields;
@@ -554,11 +606,27 @@ void Customizer::adjustFactionRepRequirements(float multiplier) {
         fields.push_back("factionValue6");
         fields.push_back("factionValue7");
         fields.push_back("factionValue8");
-        std::vector<DBRBase*> temps = fmCopy->getFiles("gameengine.tpl");
+        std::vector<DBRBase*> temps = fmCopy->getFiles("gamefactions.tpl");
         for (auto temp : temps) {
             temp->modifyField(fields, [multiplier](std::string str) -> std::string {
                 float value = std::stof(str);
-                return std::to_string((int)(value * multiplier));
+                return std::to_string((int)(value * multiplier + (value > 0 ? 0.5f : -0.5f)));
+            });
+        }
+    };
+    _tasks.push_back(f);
+}
+
+void Customizer::setFactionRepRequirement(int level, int value) {
+    _addFileForPreParse("gamefactions.tpl");
+    FileManager* fmCopy = _fileManager;
+    std::function<void()> f = [fmCopy, level, value]() {
+        std::vector<std::string> fields;
+        fields.push_back("factionValue" + std::to_string(level));
+        std::vector<DBRBase*> temps = fmCopy->getFiles("gamefactions.tpl");
+        for (auto temp : temps) {
+            temp->modifyField(fields, [value](std::string str) -> std::string {
+                return std::to_string(value);
             });
         }
     };

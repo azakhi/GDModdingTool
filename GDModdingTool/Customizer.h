@@ -40,6 +40,7 @@ public:
     static const std::function<bool(std::string)> MonsterClassEnumValidator;
     static const std::function<bool(std::string)> ItemTypeEnumValidator;
     static const std::function<bool(std::string)> ItemClassEnumValidator;
+    static const std::function<bool(std::string, int min, int max)> IntegerRangeValidator;
     static const std::function<bool(std::string, std::function<bool(std::string)>)> VectorValidator;
 };
 
@@ -117,7 +118,10 @@ public:
     void adjustCommonSpawnMax(float multiplier);
     void adjustExpRequirement(float multiplier);
     void setExpRequirementEquation(std::string value);
+    void adjustFactionMarketDiscounts(float multiplier);
+    void setFactionMarketDiscount(int level, int value);
     void adjustFactionRepRequirements(float multiplier);
+    void setFactionRepRequirement(int level, int value);
     void adjustGoldDrop(float multiplier);
     void adjustLootAmount(float multiplier, LootSource source = LootSource::All);
     void adjustMonsterClassWeight(float multiplier, MonsterClass monsterClass);

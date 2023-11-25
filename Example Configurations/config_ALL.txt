@@ -96,9 +96,23 @@ $Commands
 # Parameter 1 (Integer): Amount of energy gained per 8 spirit is set to this. Example is the default value
 #SetEnergyIncrementPerSpirit 16
 
+# Adjusts amount of discount for faction markets. This affects all levels (both negative and positive levels).
+# Parameter 1 (Float): Discount is multiplied by this
+#AdjustFactionMarketDiscounts 0.75
+
+# Set amount of required reputation for factions for specific level.
+# Parameter 1 (Integer, 1-8): Level. There are 8 levels from worst to best. Level 4 is neutral.
+# Parameter 2 (Integer): New discount. Can be negative. Percentage from base value.
+#SetFactionMarketDiscount 7 15
+
 # Adjusts amount of required reputation for factions. This affects all levels (both negative and positive levels).
 # Parameter 1 (Float): Requirement is multiplied by this
 #AdjustFactionRepRequirements 0.75
+
+# Set amount of required reputation for factions for specific level.
+# Parameter 1 (Integer, 1-8): Level. There are 8 levels from worst to best. Level 4 is neutral.
+# Parameter 2 (Integer): New requirement. Can be negative.
+#SetFactionRepRequirement 3 -100
 
 # Changes the limit of stack for given item type. Can be used multiple times for different types.
 # Parameter 1 (Integer): New stack limit
