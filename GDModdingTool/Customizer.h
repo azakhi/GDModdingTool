@@ -111,6 +111,7 @@ public:
 
     void preParse();
     void runTasks();
+    void setupForCaravanExtreme();
     void adjustAffixWeight(float multiplier, AffixType prefixType, AffixType suffixType);
     void adjustChampionChance(float multiplier);
     void adjustChampionSpawnAmount(float multiplier);

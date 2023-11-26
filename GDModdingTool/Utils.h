@@ -33,7 +33,6 @@ struct Config
     std::vector<std::string> subDirs;
     std::vector<std::string> addSubDirs;
     std::vector<std::string> commands;
-    bool isAddStasher = false;
     bool isAddInventoryBagsAtStart = false;
     bool isAddCaravanExtreme = false;
 };

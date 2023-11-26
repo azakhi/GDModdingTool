@@ -35,16 +35,6 @@ int main()
             }
         }
 
-        if (config.isAddStasher) {
-            if (std::filesystem::exists("OptionalMods\\Stasher\\Parsed\\database\\records\\")) {
-                config.includedModDirs.push_back("OptionalMods\\Stasher\\Parsed\\database\\records\\");
-            }
-            else {
-                Print << "Error: Couldn't find Stasher\n";
-                log_error << "Stasher directory doesn't exist\n";
-            }
-        }
-
         FileManager fileManager(config);
 
         std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
@@ -65,6 +55,8 @@ int main()
         Print << templateNames.size() << " template names found\n\n";
 
         Customizer customizer(&fileManager, config.commands);
+        if (config.isAddCaravanExtreme) customizer.setupForCaravanExtreme();
+
         std::chrono::high_resolution_clock::time_point t3 = std::chrono::high_resolution_clock::now();
         Print << "Pre-parsing required files\n";
         customizer.preParse();
@@ -104,17 +96,6 @@ int main()
             else {
                 Print << "Error: Couldn't find CaravanExtreme\n";
                 log_error << "CaravanExtreme directory doesn't exist\n";
-            }
-        }
-
-        if (config.isAddStasher) {
-            Print << "Adding Stasher ..\n";
-            if (std::filesystem::exists("OptionalMods\\Stasher\\CopyOnly\\")) {
-                std::filesystem::copy("OptionalMods\\Stasher\\CopyOnly\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
-            }
-            else {
-                Print << "Error: Couldn't find Stasher\n";
-                log_error << "Stasher directory doesn't exist\n";
             }
         }
 
@@ -210,11 +191,6 @@ void parseConfigFile(Config& config) {
                     line = "";
                 }
             }
-        }
-
-        if (line == "$AddStasher") {
-            config.isAddStasher = true;
-            line = "";
         }
 
         if (line == "$AddInventoryBagsAtStart") {

@@ -107,6 +107,8 @@ tab3PoisonRetRollover,records/ui/character/characterinfotab3/retaliationsection/
 tab3PoisonRetText,tagCharStatsPoisonRet,
 tab3ProjDeflectChanceRollover,records/ui/character/characterinfotab3/defensesection/charinfo_projdeflectrollover.dbr,
 tab3ProjDeflectChanceText,tagCharStatsProjDeflectChance,
+tab3ReflectResistRollover,records/ui/character/characterinfotab3/defensesection/charinfo_reflectresistrollover.dbr,
+tab3ReflectResistText,tagCharStatsReflectResist,
 tab3ScrollWindow,records/ui/character/characterinfotab3/charinfo_tab3scrollwindow.dbr,
 tab3SleepResistRollover,records/ui/character/characterinfotab3/defensesection/charinfo_sleepresistrollover.dbr,
 tab3SleepResistText,tagCharStatsSleepResist,

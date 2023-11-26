@@ -1,5 +1,5 @@
 templateName,database/templates/ingameui/buttonstatictext.tpl,
-FileDescription,移物按钮位置 by front210 ButtonStatic,
+FileDescription,移物按钮位置 by tt300 ButtonStatic,
 bitmapNameDown,ui/caravan/caravan_movecomponentsdown.tex,
 bitmapNameInFocus,ui/caravan/caravan_movecomponentsover.tex,
 bitmapNameUp,ui/caravan/caravan_movecomponentsup.tex,
