@@ -1,5 +1,5 @@
 templateName,database/templates/ingameui/bitmapsingle.tpl,
-FileDescription,BitmapSingle,
-bitmapName,caravaner/vx-inspectcharacterimage_930x971-b.tex,
+FileDescription,人物界面上部 BitmapSingle,
+bitmapName,caravan & backpack/inspectcharacterimage.tex,
 bitmapPositionX,0,
 bitmapPositionY,0,

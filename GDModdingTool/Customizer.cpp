@@ -233,9 +233,10 @@ void Customizer::setupForCaravanExtreme() {
     _addFileForPreParse("gameengine.tpl");
     FileManager* fmCopy = _fileManager;
     std::function<void()> f = [fmCopy]() {
-        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack0DimsX", [](std::string str) -> std::string { return "640"; });
-        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack0DimsY", [](std::string str) -> std::string { return "512"; });
-        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack1DimsY", [](std::string str) -> std::string { return "896"; });
+        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack0DimsX", [](std::string str) -> std::string { return "327"; });
+        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack0DimsY", [](std::string str) -> std::string { return "385"; });
+        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack1DimsX", [](std::string str) -> std::string { return "981"; });
+        fmCopy->modifyField("gameengine.tpl", "UICharWindowInventorySack1DimsY", [](std::string str) -> std::string { return "711"; });
     };
     _tasks.push_back(f);
 }

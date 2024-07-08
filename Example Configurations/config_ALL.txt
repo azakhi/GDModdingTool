@@ -31,7 +31,8 @@ interactive
 ## OPTIONAL ADDITIONAL MODS
 # Remove '#' at start to add these mods.
 
-# New Caravan & Inventory (Extreme Edition) by tt300: https://forums.crateentertainment.com/t/mod-new-caravan-inventory-extreme-edition-apply-to-gd-v1-1-9-0-gdx2/94922
+# Caravan & Backpack by tt300: https://forums.crateentertainment.com/t/mod-super-large-caravan-and-backpack-applies-to-gd-1-2-1-1-gdx2/136217
+# IMPORTANT: Check here for building with this mod: https://github.com/azakhi/GDModdingTool/wiki#compiling-with-caravan--backpack
 #$AddCaravanExtreme
 
 # Gives 5 inventory bags when you talk to Hangman Jarvis at the start.

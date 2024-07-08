@@ -1,5 +1,5 @@
 templateName,database/templates/ingameui/bitmapsingle.tpl,
-FileDescription,BitmapSingle,
-bitmapName,caravaner/vx-character_windowbackgroundimage_930x971-b.tex,
+FileDescription,整体人物界面 BitmapSingle,
+bitmapName,caravan & backpack/character_windowbackgroundimage.tex,
 bitmapPositionX,0,
 bitmapPositionY,0,

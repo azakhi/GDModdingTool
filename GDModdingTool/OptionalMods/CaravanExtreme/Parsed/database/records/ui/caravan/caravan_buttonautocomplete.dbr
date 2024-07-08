@@ -1,8 +1,0 @@
-templateName,database/templates/ingameui/buttonstatictext.tpl,
-FileDescription,组合按钮位置 by tt300 ButtonStatic,
-bitmapPositionX,517,
-bitmapPositionY,43,
-isCircular,0,
-soundNameDown,records/sounds/ui/spak_buttonclickgenericsmall.dbr,
-style,records/ui/styles/text/style_textwhite_sizes.dbr,
-textDropShadow,0,

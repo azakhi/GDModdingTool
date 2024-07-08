@@ -89,9 +89,13 @@ int main()
         Print << fileManager.progressTotal() << " files saved\n";
 
         if (config.isAddCaravanExtreme) {
-            Print << "Adding CaravanExtreme ..\n";
+            Print << "Adding Caravan & Backpack ..\n";
             if (std::filesystem::exists("OptionalMods\\CaravanExtreme\\CopyOnly\\")) {
                 std::filesystem::copy("OptionalMods\\CaravanExtreme\\CopyOnly\\", config.modDir, std::filesystem::copy_options::recursive | std::filesystem::copy_options::overwrite_existing);
+                Print << "\n********  IMPORTANT NOTE  ********\n";
+                Print << "Building your mod through Asset Manager might remove assets in Caravan & Backpack\n";
+                Print << "Copy OptionalMods\\CaravanExtreme\\CopyOnly\\resources into Grim Dawn\\mods\\Your Mod after building\n";
+                Print << "**********************************\n\n";
             }
             else {
                 Print << "Error: Couldn't find CaravanExtreme\n";

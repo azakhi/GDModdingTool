@@ -1,0 +1,5 @@
+templateName,database/templates/ingameui/bitmapsingle.tpl,
+FileDescription,人物属性栏 2 标签 BitmapSingle - Set xy based on table size,
+bitmapName,ui/character/character_buttoninfotab2.tex,
+bitmapPositionX,85,
+bitmapPositionY,12,
