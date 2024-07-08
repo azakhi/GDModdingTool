@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include "DBRBase.h"
 #include "DynWeightAffixTable.h"
 
@@ -8,6 +9,10 @@ class LevelTable : public DBRBase
     bool _isParsed = false;
     std::vector<DynWeightAffixTable*> _records;
     std::vector<LevelTable*> _levelTables;
+    std::unordered_set<std::string> _ignoredFiles{
+        // Deleted files Crate forgot to remove references to in other files
+        "records/items/loottables/misc/tdyn_potions_a01.dbr",
+    };
 
 public:
     LevelTable(FileManager* fileManager, std::filesystem::directory_entry directoryEntry, std::string templateName, bool isAlwaysDirty = false)
@@ -21,7 +26,8 @@ public:
             std::string item = "";
             while (std::getline(ss, item, ';')) {
                 DBRBase* file = _fileManager->getFile(item);
-                if (file == nullptr) {
+                if (_ignoredFiles.find(item) != _ignoredFiles.end()) {}
+                else if (file == nullptr) {
                     log_error << "Loot file is not found\n    Level Table: " << _directoryEntry.path().string() << "\n    File: " << item << "\n";
                 }
                 else if (file->templateName() == "leveltable.tpl") {
