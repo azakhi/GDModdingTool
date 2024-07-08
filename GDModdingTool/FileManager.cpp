@@ -165,6 +165,7 @@ void FileManager::_scanFiles() {
         templateMap["weapon_sword2h.tpl"] = itemBaseTemplate;
         templateMap["weapon_sword.tpl"] = itemBaseTemplate;
         templateMap["weapon_staff.tpl"] = itemBaseTemplate;
+        templateMap["weapon_spear2h.tpl"] = itemBaseTemplate;
         templateMap["weapon_spear.tpl"] = itemBaseTemplate;
         templateMap["weapon_scepter.tpl"] = itemBaseTemplate;
         templateMap["weapon_ranged2h.tpl"] = itemBaseTemplate;
