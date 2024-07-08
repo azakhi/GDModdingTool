@@ -137,8 +137,8 @@ $Commands
 
 # Changes the limit of stack for given item type. Can be used multiple times for different types.
 # Parameter 1 (Integer): New stack limit
-# Parameter 2: Item type. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
-#SetItemStackLimit 300 Potion
+# Parameter 2: Item type. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Quest, Relic, Ring, Shield, Weapon
+#SetItemStackLimit 300 Quest
 
 ## LOOT
 
@@ -153,7 +153,7 @@ $Commands
 
 # Adjusts amount of specific loot combination. Can be used multiple times to cover different combinations.
 # Parameter 1 (Float): Amount is multiplied by this
-# Parameter 2: List of item types. Separate values with ','. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Potion, Quest, Relic, Ring, Shield, Weapon
+# Parameter 2: List of item types. Separate values with ','. Valid values: Amulet, Armor, Belt, Blueprint, Component, Medal, Quest, Relic, Ring, Shield, Weapon
 # Parameter 3: List of item classes (rarities). Separate values with ','. Valid values: Common, Magical, Rare, Epic, Legendary, Quest
 # Parameter 4 (Boolean): Should types and classes be combined with AND or OR? AND makes it apply to loots satisfying both while OR requires only one to satisfy. Use 'True' for AND and 'False' for OR.
 #AdjustSpecificLootAmount 1.333 Component,Amulet Quest,Rare True
